@@ -10,113 +10,109 @@
 
     <style>
         :root {
-            --bg-deep: #0b1423; --bg-card: #152238; --accent: #00d2ff;
-            --gold: #d4af37; --text-main: #e0e6ed; --border: #2d3e5a; --danger: #e74c3c;
+            --bg-body: #f0f4f8; --bg-card: #ffffff; --accent: #0056b3;
+            --accent-light: #eef6ff; --gold: #b8860b; --text-main: #1a202c;
+            --text-muted: #4a5568; --border: #cbd5e0; --danger: #d32f2f;
+            --success: #27ae60;
         }
 
-        body {
-            background-color: var(--bg-deep); color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px;
-            display: flex; justify-content: center;
-        }
-
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { max-width: 950px; width: 100%; }
 
-        /* --- HEADER --- */
         .header-estacion {
             display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(135deg, #1c2d4a 0%, #152238 100%);
-            padding: 25px; border-radius: 12px; border-bottom: 4px solid var(--gold);
-            margin-bottom: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            background: var(--bg-card); padding: 25px; border-radius: 12px; 
+            border-top: 5px solid var(--accent); margin-bottom: 25px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        .header-left { display: flex; flex-direction: column; gap: 12px; }
-        .header-right {
-            text-align: right; background: rgba(0, 0, 0, 0.2);
-            padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border);
-            min-width: 200px;
-        }
-
-        .inst-name { margin: 0; font-size: 1.4rem; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
-        .inst-sub { margin: -2px 0 10px 0; font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; }
+        .inst-name { margin: 0; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
+        .inst-sub { margin: -2px 0 10px 0; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
 
         .selectors-group { display: flex; gap: 15px; }
-        select.header-select { height: 38px; padding: 0 12px; border-radius: 6px; font-weight: bold; cursor: pointer; background: #0b1423; color: white; border: 1px solid var(--border); }
-        #estacion_nombre { width: 300px; border: 2px solid var(--accent); color: var(--accent); }
-        #horario_utc { width: 150px; border: 2px solid var(--gold); color: var(--gold); }
+        select.header-select { height: 45px; padding: 0 12px; border-radius: 6px; font-weight: bold; background: #fff; border: 2px solid var(--border); text-align: center; }
+        #estacion_nombre { width: 300px; border-color: var(--accent); color: var(--accent); }
+        #horario_utc { width: 150px; border-color: var(--gold); color: var(--gold); }
 
-        #fecha-actual { font-size: 1.1rem; font-weight: bold; color: var(--gold); display: block; margin-bottom: 5px; }
-        #hora-local-reloj { font-size: 1.6rem; font-family: 'Courier New', monospace; color: white; font-weight: bold; display: block; }
-        .label-hora { font-size: 0.6rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .header-right { text-align: right; background: #f8fafc; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); min-width: 200px; }
+        #hora-local-reloj { font-size: 1.6rem; font-family: 'Courier New', monospace; color: var(--accent); font-weight: bold; display: block; }
 
-        /* --- TARJETAS --- */
-        .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 15px; }
-        .section-title { color: var(--gold); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 5px; font-weight: bold; }
+        .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 15px; position: relative; }
+        .section-title { color: var(--gold); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-bottom: 2px solid #f1f1f1; padding-bottom: 5px; font-weight: 800; }
         
         .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
-        .field { display: flex; flex-direction: column; }
-        label { font-size: 0.68rem; margin-bottom: 4px; color: #cbd5e0; font-weight: 600; text-transform: uppercase;}
+        .field { display: flex; flex-direction: column; transition: 0.2s; }
+        
+        /* Clase para anular casillas con CTRL+S */
+        .anulado { opacity: 0; pointer-events: none; visibility: hidden; position: absolute; }
 
-        input, textarea, select { background: #0b1423; border: 1px solid var(--border); color: white; padding: 8px; border-radius: 4px; font-size: 0.85rem; }
-        .auto-calc { background: #0d2538; color: var(--accent); font-weight: bold; border-color: var(--accent); text-align: center; }
-        .clave-input { color: var(--gold); font-weight: bold; width: 100%; box-sizing: border-box; }
+        label { font-size: 0.75rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;}
+
+        input, textarea, select { 
+            background: #fff; border: 1px solid var(--border); color: var(--text-main); 
+            padding: 12px 5px; border-radius: 6px; 
+            text-align: center; text-align-last: center;
+            font-size: 1.2rem; font-weight: 600;
+            width: 100%; box-sizing: border-box;
+        }
         
+        .auto-calc { background: var(--accent-light); color: var(--accent); font-weight: bold; border: 1px solid #b3d7ff; }
         .hidden-section { display: none; }
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         
-        button { padding: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; border: none; transition: 0.2s; }
-        .btn-save { background: var(--accent); color: var(--bg-deep); }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        button { padding: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; border: none; }
+        .btn-save { background: var(--accent); color: white; }
         .btn-pdf { background: var(--danger); color: white; }
 
-        .pdf-mode { background: white !important; color: black !important; padding: 30px !important; }
-        .pdf-mode .section-card { background: white !important; border: 1px solid #aaa !important; color: black !important; }
-        .pdf-mode .section-title { color: #003366 !important; border-bottom: 2px solid #003366 !important; }
-        .pdf-mode label { color: #333 !important; }
-        .pdf-mode input, .pdf-mode select, .pdf-mode textarea { background: white !important; color: black !important; border: 1px solid #666 !important; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 900px; width: 100%; max-height: 95vh; overflow-y: auto; }
+        
+        .pdf-mode { background: white !important; width: 900px !important; padding: 40px !important; }
     </style>
 </head>
 <body>
 
 <div class="container" id="form-content">
-    
     <div class="header-estacion">
         <div class="header-left">
-            <div>
-                <h1 class="inst-name">Registro Meteorológico de Faros</h1>
-                <p class="inst-sub">Centro Zonal de Meteorología Marina de Puerto Montt</p>
-            </div>
+            <h1 class="inst-name">Registro Meteorológico de Faros</h1>
+            <p class="inst-sub">Centro Zonal de Meteorología Marina de Puerto Montt</p>
             <div class="selectors-group">
                 <select id="estacion_nombre" class="header-select">
                     <option value="">SELECCIONAR ESTACIÓN...</option>
-                    <option value="FARO RAPER">FARO RAPER</option>
-                    <option value="FARO GUAFO">FARO GUAFO</option>
-                    <option value="FARO CORONA">FARO CORONA</option>
-                    <option value="FARO PUNTA CORONA">FARO PUNTA CORONA</option>
+                    <option value="RAPER">FARO RAPER</option>
+                    <option value="GUAFO">FARO GUAFO</option>
+                    <option value="CORONA">FARO CORONA</option>
+                    <option value="PUNTA CORONA">FARO PUNTA CORONA</option>
                 </select>
                 <select id="horario_utc" class="header-select" onchange="gestionarVisibilidad()">
                     <option value="">HORARIO UTC...</option>
-                    <option value="00">00 UTC</option><option value="03">03 UTC</option>
-                    <option value="06">06 UTC</option><option value="09">09 UTC</option>
-                    <option value="12">12 UTC</option><option value="15">15 UTC</option>
-                    <option value="18">18 UTC</option><option value="21">21 UTC</option>
+                    <option value="00">00 UTC</option>
+                    <option value="03">03 UTC</option>
+                    <option value="06">06 UTC</option>
+                    <option value="09">09 UTC</option>
+                    <option value="12">12 UTC</option>
+                    <option value="15">15 UTC</option>
+                    <option value="18">18 UTC</option>
+                    <option value="21">21 UTC</option>
                 </select>
             </div>
         </div>
         <div class="header-right">
             <span id="fecha-actual">--/--/----</span>
             <span id="hora-local-reloj">00:00:00</span>
-            <span class="label-hora">Hora Local (Chile)</span>
+            <p style="font-size:0.65rem; color:var(--danger); font-weight:bold; margin-top:5px;">[CTRL + S] ANULAR CASILLA</p>
         </div>
     </div>
 
     <div class="section-card">
-        <div class="section-title">1. Viento a 10 Metros</div>
+        <div class="section-title">1. Viento (10 Metros)</div>
         <div class="grid-inputs">
             <div class="field"><label>Dirección (°)</label><input type="number" id="v_dir"></div>
             <div class="field"><label>Rapidez (kt)</label><input type="number" id="v_kt"></div>
             <div class="field"><label>Racha (kt)</label><input type="number" id="v_racha"></div>
-            <div class="field" style="flex-direction:row; align-items:center; gap:5px; margin-top:15px;">
-                <input type="checkbox" id="v_var"> <label style="margin:0">Variable</label>
+            <div class="field" style="flex-direction:row; align-items:center; gap:8px; margin-top:20px;">
+                <input type="checkbox" id="v_var" style="width:20px; height:20px;"> <label style="margin:0">VAR</label>
             </div>
         </div>
     </div>
@@ -126,18 +122,19 @@
         <div class="grid-inputs">
             <div class="field"><label>T. Seca (°C)</label><input type="number" step="0.1" id="t_seco" oninput="logicaCalculo('seco')"></div>
             <div class="field"><label>T. Húmeda (°C)</label><input type="number" step="0.1" id="t_hum" oninput="logicaCalculo('hum')"></div>
-            <div class="field"><label>T. Rocío Td (°C)</label><input type="number" step="0.1" id="t_rocio" oninput="logicaCalculo('rocio')"></div>
+            <div class="field"><label>T. Rocío (°C)</label><input type="number" step="0.1" id="t_rocio" oninput="logicaCalculo('rocio')"></div>
             <div class="field"><label>HR (%)</label><input type="text" id="hr_res" class="auto-calc" readonly></div>
         </div>
-        <div id="bloque_maxima" class="hidden-section">
-            <div class="grid-inputs" style="margin-top:15px; border-top: 1px dashed var(--border); padding-top:10px;">
-                <div class="field"><label style="color:var(--gold)">T. Máxima (°C)</label><input type="number" step="0.1"></div>
+        
+        <div id="bloque_maxima" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
+            <div class="grid-inputs">
+                <div class="field"><label style="color:var(--gold)">T. Máxima</label><input type="number" step="0.1"></div>
                 <div class="field"><label style="color:var(--gold)">Hora (UTC)</label><input type="time"></div>
             </div>
         </div>
-        <div id="bloque_minima" class="hidden-section">
-            <div class="grid-inputs" style="margin-top:15px; border-top: 1px dashed var(--border); padding-top:10px;">
-                <div class="field"><label style="color:var(--accent)">T. Mínima (°C)</label><input type="number" step="0.1"></div>
+        <div id="bloque_minima" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
+            <div class="grid-inputs">
+                <div class="field"><label style="color:var(--accent)">T. Mínima</label><input type="number" step="0.1"></div>
                 <div class="field"><label style="color:var(--accent)">Hora (UTC)</label><input type="time"></div>
             </div>
         </div>
@@ -146,381 +143,123 @@
     <div class="section-card">
         <div class="section-title">3. Presión y Tendencia</div>
         <div class="grid-inputs">
-            <div class="field"><label>Presión QFE</label><input type="number" step="0.1" id="p_qfe" value="1013.2"></div>
-            <div class="field"><label>Presión QFF</label><input type="number" step="0.1" id="p_qff"></div>
+            <div class="field"><label>QFE (hPa)</label><input type="number" step="0.1" id="p_qfe" value="1013.2"></div>
+            <div class="field"><label>QFF (hPa)</label><input type="number" step="0.1" id="p_qff"></div>
             <div class="field"><label>Tendencia (a)</label>
-                <select id="t_caract"><option value="2">2 - Subiendo</option><option value="4">4 - Estacionario</option><option value="7">7 - Bajando</option></select>
+                <select id="t_caract">
+                    <option value="2">2-Subiendo</option>
+                    <option value="4">4-Estable</option>
+                    <option value="7">7-Bajando</option>
+                </select>
             </div>
-            <div class="field"><label>Valor (ppp)</label><input type="number" step="0.1"></div>
+            <div class="field"><label>Valor (PPP)</label><input type="number" step="0.1"></div>
         </div>
     </div>
 
     <div class="section-card">
-        <div class="section-title">4. Visibilidad Horizontal</div>
+        <div class="section-title">4. Visibilidad y Tiempo (7wwW1W2)</div>
         <div class="grid-inputs">
-            <div class="field"><label>Visibilidad (VV)</label><input type="text" class="clave-input" maxlength="2" placeholder="00-99"></div>
+            <div class="field"><label>Visibilidad (VV)</label><input type="text" maxlength="2"></div>
+            <div class="field"><label>ww (Presente)</label><input type="text" maxlength="2"></div>
+            <div class="field"><label>W1 (Pasado)</label><input type="text" maxlength="1"></div>
+            <div class="field"><label>W2 (Pasado)</label><input type="text" maxlength="1"></div>
         </div>
     </div>
 
     <div class="section-card">
-        <div class="section-title">5. Tiempo Presente y Pasado (7wwW1W2)</div>
-        <div class="field" style="margin-bottom: 15px;">
-            <label>Tiempo Presente (ww)</label>
-           <select class="clave-input">
-<optgroup label="00–09 | Estado del cielo / sin precipitación">
-<option value="00">00 - Estado del cielo no observado</option>
-<option value="01">01 - Nubes en disminución</option>
-<option value="02">02 - Estado del cielo sin cambios en su conjunto</option>
-<option value="03">03 - Nubosidad en aumento o formación</option>
-<option value="04">04 - Visibilidad reducida por humo o ceniza</option>
-<option value="05">05 - Visibilidad reducida por bruma (>1 km)</option>
-<option value="06">06 - Polvo en suspensión</option>
-<option value="07">07 - Polvo o arena levantado por el viento</option>
-<option value="08">08 - Remolinos de polvo o arena</option>
-<option value="09">09 - Tormenta de polvo o arena a la vista</option>
-</optgroup>
-<optgroup label="10–19 | Fenómenos sin precipitación (hora actual o anterior)">
-<option value="10">10 - Neblina (1 a 10 km)</option>
-<option value="11">11 - Niebla baja en bancos aislados (vis < 1 km)</option>
-<option value="12">12 - Niebla baja continua (vis < 1 km)</option>
-<option value="13">13 - Relámpagos visibles sin truenos</option>
-<option value="14">14 - Virga (precipitación que no llega)</option>
-<option value="15">15 - Precipitación a más de 5 km</option>
-<option value="16">16 - Precipitación cerca pero no en estación</option>
-<option value="17">17 - Tormenta sin precipitación</option>
-<option value="18">18 - Turbonadas</option>
-<option value="19">19 - Tornado o tromba marina</option>
-</optgroup>
-<optgroup label="20–29 | Fenómenos en hora precedente">
-<option value="20">20 - Llovizna no congelándose</option>
-<option value="21">21 - Lluvia no congelándose</option>
-<option value="22">22 - Nieve</option>
-<option value="23">23 - Lluvia y nieve o bolitas de hielo</option>
-<option value="24">24 - Lluvia o llovizna congelante</option>
-<option value="25">25 - Chubascos de lluvia</option>
-<option value="26">26 - Chubascos de nieve o lluvia/nieve</option>
-<option value="27">27 - Chubascos de granizo pequeño o nieve granulada</option>
-<option value="28">28 - Niebla o niebla helada</option>
-<option value="29">29 - Tormenta con o sin precipitación</option>
-</optgroup>
-<optgroup label="30–39 | Polvo, arena y ventisca">
-<option value="30">30 - Tempestad de polvo débil/moderada disminuyendo</option>
-<option value="31">31 - Tempestad de polvo débil/moderada sin cambio</option>
-<option value="32">32 - Tempestad de polvo en aumento</option>
-<option value="33">33 - Tempestad de polvo fuerte disminuyendo</option>
-<option value="34">34 - Tempestad de polvo fuerte sin cambio</option>
-<option value="35">35 - Tempestad de polvo fuerte en aumento</option>
-<option value="36">36 - Ventisca baja débil/moderada</option>
-<option value="37">37 - Ventisca baja fuerte</option>
-<option value="38">38 - Ventisca alta débil/moderada</option>
-<option value="39">39 - Ventisca alta fuerte</option>
-</optgroup>
-<optgroup label="40–49 | Niebla en la estación">
-<option value="40">40 - Niebla a distancia</option>
-<option value="41">41 - Niebla en bancos aislados disminuyendo</option>
-<option value="42">42 - Niebla cielo visible disminuyendo</option>
-<option value="43">43 - Niebla cielo invisible disminuyendo</option>
-<option value="44">44 - Niebla cielo visible sin cambio</option>
-<option value="45">45 - Niebla cielo invisible sin cambio</option>
-<option value="46">46 - Niebla cielo visible en aumento</option>
-<option value="47">47 - Niebla cielo invisible en aumento</option>
-<option value="48">48 - Niebla con escarcha (cielo visible)</option>
-<option value="49">49 - Niebla con escarcha (cielo invisible)</option>
-</optgroup>
-<optgroup label="50–59 | Llovizna">
-<option value="50">50 - Llovizna débil intermitente</option>
-<option value="51">51 - Llovizna débil continua</option>
-<option value="52">52 - Llovizna moderada intermitente</option>
-<option value="53">53 - Llovizna moderada continua</option>
-<option value="54">54 - Llovizna fuerte intermitente</option>
-<option value="55">55 - Llovizna fuerte continua</option>
-<option value="56">56 - Llovizna congelante débil</option>
-<option value="57">57 - Llovizna congelante moderada/fuerte</option>
-<option value="58">58 - Llovizna con lluvia débil</option>
-<option value="59">59 - Llovizna con lluvia moderada/fuerte</option>
-</optgroup>
-<optgroup label="60–69 | Lluvia">
-<option value="60">60 - Lluvia débil intermitente</option>
-<option value="61">61 - Lluvia débil continua</option>
-<option value="62">62 - Lluvia moderada intermitente</option>
-<option value="63">63 - Lluvia moderada continua</option>
-<option value="64">64 - Lluvia fuerte intermitente</option>
-<option value="65">65 - Lluvia fuerte continua</option>
-<option value="66">66 - Lluvia congelante débil</option>
-<option value="67">67 - Lluvia congelante moderada/fuerte</option>
-<option value="68">68 - Lluvia y nieve débil</option>
-<option value="69">69 - Lluvia y nieve moderada/fuerte</option>
-</optgroup>
-<optgroup label="70–79 | Nieve (no chubascos)">
-<option value="70">70 - Nieve débil intermitente</option>
-<option value="71">71 - Nieve débil continua</option>
-<option value="72">72 - Nieve moderada intermitente</option>
-<option value="73">73 - Nieve moderada continua</option>
-<option value="74">74 - Nieve fuerte intermitente</option>
-<option value="75">75 - Nieve fuerte continua</option>
-<option value="76">76 - Agujas de hielo</option>
-<option value="77">77 - Nieve granulada</option>
-<option value="78">78 - Cristales de nieve</option>
-<option value="79">79 - Cellisca / bolitas de hielo</option>
-</optgroup>
-<optgroup label="80–89 | Chubascos">
-<option value="80">80 - Chubascos de lluvia débil</option>
-<option value="81">81 - Chubascos de lluvia moderada/fuerte</option>
-<option value="82">82 - Chubascos violentos</option>
-<option value="83">83 - Chubascos de lluvia y nieve débil</option>
-<option value="84">84 - Chubascos de lluvia y nieve fuerte</option>
-<option value="85">85 - Chubascos de nieve débil</option>
-<option value="86">86 - Chubascos de nieve fuerte</option>
-<option value="87">87 - Chubascos débiles de granizo pequeño</option>
-<option value="88">88 - Chubascos fuertes de granizo pequeño</option>
-<option value="89">89 - Chubascos débiles de granizo</option>
-</optgroup>
-<optgroup label="90–99 | Tormentas eléctricas">
-<option value="90">90 - Chubascos fuertes de granizo</option>
-<option value="91">91 - Lluvia débil con tormenta previa</option>
-<option value="92">92 - Lluvia moderada/fuerte con tormenta previa</option>
-<option value="93">93 - Nieve débil con tormenta previa</option>
-<option value="94">94 - Nieve fuerte con tormenta previa</option>
-<option value="95">95 - Tormenta con lluvia o nieve</option>
-<option value="96">96 - Tormenta con granizo</option>
-<option value="97">97 - Tormenta fuerte sin granizo</option>
-<option value="98">98 - Tormenta con polvo o arena</option>
-<option value="99">99 - Tormenta fuerte con granizo</option>
-</optgroup>
-            </select>
+        <div class="section-title">5. Tipos de Nubes (8NhCLCMCH)</div>
+        <div class="grid-inputs">
+            <div class="field"><label>N</label><select><option value="0">0</option><option value="8">8</option><option value="/">/</option></select></div>
+            <div class="field"><label>Nh</label><select><option value="0">0</option><option value="8">8</option><option value="/">/</option></select></div>
+            <div class="field"><label>CL</label><select><option value="1">1</option><option value="5">5</option><option value="9">9</option></select></div>
+            <div class="field"><label>CM</label><select><option value="0">0</option><option value="/">/</option></select></div>
+            <div class="field"><label>CH</label><select><option value="0">0</option><option value="/">/</option></select></div>
         </div>
+    </div>
 
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr;">
-            <div class="field">
-                <label>Pasado 1 (W1)</label>
-                <select class="clave-input">
-                    <option value="0">0 - Nubes cubriendo la mitad o menos</option>
-                    <option value="1">1 - Nubes > mitad (parte período)</option>
-                    <option value="2">2 - Nubes > mitad (todo período)</option>
-                    <option value="3">3 - Tempestad polvo/arena</option>
-                    <option value="4">4 - Niebla/Bruma espesa</option>
-                    <option value="5">5 - Llovizna</option>
-                    <option value="6">6 - Lluvia</option>
-                    <option value="7">7 - Nieve/Lluvia con nieve</option>
-                    <option value="8">8 - Chubascos</option>
-                    <option value="9">9 - Tormenta eléctrica</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>Pasado 2 (W2)</label>
-                <select class="clave-input">
-                    <option value="0">0 - Nubes cubriendo la mitad o menos</option>
-                    <option value="1">1 - Nubes > mitad (parte período)</option>
-                    <option value="2">2 - Nubes > mitad (todo período)</option>
-                    <option value="3">3 - Tempestad polvo/arena</option>
-                    <option value="4">4 - Niebla/Bruma espesa</option>
-                    <option value="5">5 - Llovizna</option>
-                    <option value="6">6 - Lluvia</option>
-                    <option value="7">7 - Nieve/Lluvia con nieve</option>
-                    <option value="8">8 - Chubascos</option>
-                    <option value="9">9 - Tormenta eléctrica</option>
-                </select>
-            </div>
+    <div class="section-card">
+        <div class="section-title">6. Capas de Nubes (Ns C hshshs)</div>
+        <div class="grid-inputs" style="margin-bottom:8px;">
+            <div class="field"><label>Ns (1°)</label><input type="text"></div>
+            <div class="field"><label>Género</label><select><option value="6">Sc</option><option value="9">Cb</option></select></div>
+            <div class="field"><label>Altura (m)</label><input type="number"></div>
+        </div>
+        <div class="grid-inputs" style="margin-bottom:8px;">
+            <div class="field"><label>Ns (2°)</label><input type="text"></div>
+            <div class="field"><label>Género</label><select><option value="5">Ns</option><option value="6">Sc</option></select></div>
+            <div class="field"><label>Altura (m)</label><input type="number"></div>
+        </div>
+        <div class="grid-inputs">
+            <div class="field"><label>Ns (3°)</label><input type="text"></div>
+            <div class="field"><label>Género</label><select><option value="0">Ci</option><option value="1">Cc</option></select></div>
+            <div class="field"><label>Altura (m)</label><input type="number"></div>
         </div>
     </div>
 
     <div id="bloque_precipitacion" class="section-card hidden-section">
-        <div class="section-title">6. Agua Caída (RRR)</div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr;">
-            <div class="field"><label>Cantidad (mm)</label><input type="number" step="0.1" id="precip_valor" placeholder="0.0"></div>
-            <div class="field" style="flex-direction:row; align-items:center; gap:8px; margin-top:15px;">
-                <input type="checkbox" id="check_trazas" onchange="manejarTrazas()"> 
-                <label style="margin:0; color: var(--accent); font-weight: bold;">TRAZAS</label>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">7. Tipos de Nubes (8NhCLCMCH)</div>
+        <div class="section-title">7. Precipitación y Suelo</div>
         <div class="grid-inputs">
-            <div class="field"><label>Total (N)</label><select class="clave-input"><option value="0">0</option><option value="8">8</option><option value="/">/</option></select></div>
-            <div class="field"><label>Nh</label><select class="clave-input"><option value="0">0</option><option value="8">8</option><option value="/">/</option></select></div>
-            <div class="field"><label>Baja (CL)</label>
-<select class="clave-input">
-<option value="0">0 - Sin nubes bajas</option>
-<option value="1">1 - Cúmulos humilis o fractus (buen tiempo)</option>
-<option value="2">2 - Cúmulos congestus o mediocres (desarrollo vertical)</option>
-<option value="3">3 - Cumulonimbus calvus</option>
-<option value="4">4 - Stratocumulus cumulogenitus (con Cu)</option>
-<option value="5">5 - Stratocumulus no formados por Cu</option>
-<option value="6">6 - Stratus o fractostratus (buen tiempo)</option>
-<option value="7">7 - Fractostratus o fractocumulus de mal tiempo</option>
-<option value="8">8 - Cúmulos y stratocumulus en distintos niveles</option>
-<option value="9">9 - Cumulonimbus capillatus (yunque)</option>
-<option value="/">/ - Nubes bajas invisibles (niebla/polvo/etc.)</option>
-                </select>
+            <div class="field"><label>Agua (mm)</label><input type="number" step="0.1" id="precip_valor"></div>
+            <div class="field" style="flex-direction:row; align-items:center; gap:8px; margin-top:20px;">
+                <input type="checkbox" id="check_trazas" onchange="manejarTrazas()"> <label style="margin:0">TRAZAS</label>
             </div>
-            <div class="field"><label>Media (CM)</label>
-<select class="clave-input">
-<option value="0">0 - Sin nubes medias</option>
-<option value="1">1 - Altostratus translúcidos (sol/luna difusos)</option>
-<option value="2">2 - Altostratus opacus o nimbostratus</option>
-<option value="3">3 - Altocúmulos translúcidos a un mismo nivel</option>
-<option value="4">4 - Altocúmulos lenticulares (forma de almendra/pez)</option>
-<option value="5">5 - Altocúmulos en bandas o capas (espesándose)</option>
-<option value="6">6 - Altocúmulos cumulogenitus (desde Cu o Cb)</option>
-<option value="7">7 - Altocúmulos en varias capas o con As/Ns</option>
-<option value="8">8 - Altocúmulos flocus o castellatus</option>
-<option value="9">9 - Altocúmulos en cielo caótico (varios niveles)</option>
-<option value="/">/ - Nubes medias invisibles (niebla/polvo/etc.)</option>
-                </select>
-            </div>
-            <div class="field"><label>Alta (CH)</label>
-<select class="clave-input">
-<option value="0">0 - Sin nubes altas</option>
-<option value="1">1 - Cirrus spissatus (no invaden el cielo)</option>
-<option value="2">2 - Cirrus spissatus en bancos o franjas</option>
-<option value="3">3 - Cirrus spissatus cumulonimbogenitus</option>
-<option value="4">4 - Cirrus uncinus o filosus (extendiéndose)</option>
-<option value="5">5 - Ci y Cs invadiendo (< 45° del cielo)</option>
-<option value="6">6 - Ci y Cs invadiendo (> 45° del cielo)</option>
-<option value="7">7 - Cirrostratus cubriendo todo el cielo</option>
-<option value="8">8 - Cirrostratus parcial sin aumento</option>
-<option value="9">9 - Cirrocúmulos predominantes</option>
-<option value="/">/ - Nubes altas invisibles</option>
-                </select>
+            <div id="bloque_estado_suelo" class="field" style="display:none;">
+                <label>Suelo (E)</label><select><option value="0">0-Seco</option><option value="1">1-Húmedo</option></select>
             </div>
         </div>
     </div>
 
     <div class="section-card">
-        <div class="section-title">8. Capas de Nubes</div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 0.6rem; color: var(--accent); font-weight: bold;">
-            <span>Ns (CANTIDAD)</span><span>C (GÉNERO)</span><span>hshshs (ALTURA)</span>
-        </div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8">
-<select class="clave-input">
-<option value="0">0 - Cirrus (Ci)</option>
-<option value="1">1 - Cirrocúmulus (Cc)</option>
-<option value="2">2 - Cirrostratus (Cs)</option>
-<option value="3">3 - Altocúmulus (Ac)</option>
-<option value="4">4 - Altostratus (As)</option>
-<option value="5">5 - Nimbostratus (Ns)</option>
-<option value="6">6 - Stratocúmulus (Sc)</option>
-<option value="7">7 - Stratus (St)</option>
-<option value="8">8 - Cúmulus (Cu)</option>
-<option value="9">9 - Cúmulonimbus (Cb)</option>
-<option value="/">/ - No se observan nubes</option>
-            </select>
-            <input type="number" placeholder="m">
-        </div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8">
-<select class="clave-input">
-<option value="0">0 - Cirrus (Ci)</option>
-<option value="1">1 - Cirrocúmulus (Cc)</option>
-<option value="2">2 - Cirrostratus (Cs)</option>
-<option value="3">3 - Altocúmulus (Ac)</option>
-<option value="4">4 - Altostratus (As)</option>
-<option value="5">5 - Nimbostratus (Ns)</option>
-<option value="6">6 - Stratocúmulus (Sc)</option>
-<option value="7">7 - Stratus (St)</option>
-<option value="8">8 - Cúmulus (Cu)</option>
-<option value="9">9 - Cúmulonimbus (Cb)</option>
-<option value="/">/ - No se observan nubes</option>
-            </select>
-            <input type="number" placeholder="m">
-        </div>
-<div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8">
-<select class="clave-input">
-<option value="0">0 - Cirrus (Ci)</option>
-<option value="1">1 - Cirrocúmulus (Cc)</option>
-<option value="2">2 - Cirrostratus (Cs)</option>
-<option value="3">3 - Altocúmulus (Ac)</option>
-<option value="4">4 - Altostratus (As)</option>
-<option value="5">5 - Nimbostratus (Ns)</option>
-<option value="6">6 - Stratocúmulus (Sc)</option>
-<option value="7">7 - Stratus (St)</option>
-<option value="8">8 - Cúmulus (Cu)</option>
-<option value="9">9 - Cúmulonimbus (Cb)</option>
-<option value="/">/ - No se observan nubes</option>
-            </select>
-            <input type="number" placeholder="m">
-        </div>
-
-    </div>
-
-    <div id="bloque_estado_suelo" class="section-card hidden-section">
-        <div class="section-title">9. Estado del Suelo (E) - 12 UTC</div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr;">
-            <div class="field">
-                <label>Condición de la Superficie</label>
-                <select class="clave-input">
-                    <option value="0">0 - Superficie del suelo seca (sin polvo o arena suelta)</option>
-                    <option value="1">1 - Superficie del suelo húmeda</option>
-                    <option value="2">2 - Superficie del suelo mojada (charcos pequeños)</option>
-                    <option value="3">3 - Superficie inundada (charcos grandes)</option>
-                    <option value="4">4 - Superficie del suelo helada</option>
-                    <option value="5">5 - Glaseado de hielo o costra de hielo en el suelo</option>
-                    <option value="6">6 - Polvo o arena suelta cubriendo parcialmente el suelo</option>
-                    <option value="7">7 - Capa delgada de polvo o arena suelta cubriendo el suelo</option>
-                    <option value="8">8 - Capa moderada o gruesa de polvo o arena cubriendo el suelo</option>
-                    <option value="9">9 - Suelo extremadamente seco con grietas</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">10. Estado del Mar y Swell</div>
+        <div class="section-title">8. Estado del Mar y Observaciones</div>
         <div class="grid-inputs">
-            <div class="field"><label>Dir. Swell (°)</label><input type="number" placeholder="0-360"></div>
-            <div class="field"><label>Periodo (seg)</label><input type="number" step="0.1"></div>
-            <div class="field"><label>Altura (m)</label><input type="number" step="0.1"></div>
-            <div class="field">
-                <label>Douglas</label>
-                <select class="clave-input">
-                    <option value="0">0 - Calma</option>
-                    <option value="2">2 - Rizada</option>
-                    <option value="3">3 - Marejadilla</option>
-                    <option value="4">4 - Marejada</option>
-                    <option value="5">5 - Gruesa</option>
-                </select>
-            </div>
+            <div class="field"><label>Dir. Swell (°)</label><input type="number"></div>
+            <div class="field"><label>Swell (m)</label><input type="number" step="0.1"></div>
+            <div class="field"><label>Altura Mar (m)</label><input type="number" step="0.1"></div>
+            <div class="field"><label>Douglas</label><select><option value="3">3-Mjadilla</option><option value="4">4-Mjada</option></select></div>
         </div>
-        <div class="field" style="margin-top:15px;">
-            <label>Observaciones</label>
-            <textarea id="obs_texto" rows="2"></textarea>
-        </div>
+        <div class="field" style="margin-top:15px;"><label>Observaciones</label><textarea id="obs_texto" rows="3"></textarea></div>
     </div>
 
     <div class="actions">
-        <button type="button" class="btn-save" onclick="alert('Datos guardados')">Guardar Reporte</button>
-        <button type="button" class="btn-pdf" onclick="descargarPDF()">Generar PDF</button>
+        <button type="button" class="btn-save" onclick="location.reload()">Refrescar</button>
+        <button type="button" class="btn-pdf" onclick="mostrarVistaPrevia()">Vista Previa PDF</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-preview">
+    <div class="modal-content">
+        <div id="preview-canvas-container" style="text-align: center;"></div>
+        <div style="text-align:center; margin-top:20px;">
+            <button style="background:#666; color:white;" onclick="cerrarModal()">Editar</button>
+            <button style="background:var(--success); color:white;" onclick="descargarPDFDefinitivo()">Descargar PDF</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // --- LÓGICA DE ATAJO CTRL+S PARA ANULAR ---
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            const activo = document.activeElement;
+            if (activo && (activo.tagName === 'INPUT' || activo.tagName === 'SELECT' || activo.tagName === 'TEXTAREA')) {
+                const field = activo.closest('.field');
+                if (field) field.classList.add('anulado');
+            }
+        }
+    });
+
     function actualizarReloj() {
         const ahora = new Date();
-        const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-CL', opcionesFecha);
-        const opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        document.getElementById('hora-local-reloj').innerText = ahora.toLocaleTimeString('es-CL', opcionesHora);
+        document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-CL');
+        document.getElementById('hora-local-reloj').innerText = ahora.toLocaleTimeString('es-CL', { hour12: false });
     }
-    setInterval(actualizarReloj, 1000);
-    actualizarReloj();
+    setInterval(actualizarReloj, 1000); actualizarReloj();
 
     function gestionarVisibilidad() {
         const h = document.getElementById('horario_utc').value;
-        
-        // Bloque Precipitación
         document.getElementById('bloque_precipitacion').style.display = (["00", "06", "12", "18"].includes(h)) ? 'block' : 'none';
-        
-        // Bloque Estado del Suelo (Tu nueva solicitud)
-        const bloqueSuelo = document.getElementById('bloque_estado_suelo');
-        if (bloqueSuelo) {
-            bloqueSuelo.style.display = (h === "12") ? 'block' : 'none';
-        }
-
-        // Bloques Temperaturas Extremas
+        document.getElementById('bloque_estado_suelo').style.display = (h === "12") ? 'block' : 'none';
         document.getElementById('bloque_maxima').style.display = (h === "00") ? 'block' : 'none';
         document.getElementById('bloque_minima').style.display = (h === "12") ? 'block' : 'none';
     }
@@ -528,19 +267,22 @@
     function manejarTrazas() {
         const check = document.getElementById('check_trazas');
         const input = document.getElementById('precip_valor');
-        if(check.checked) { input.value = "0.0"; input.disabled = true; input.style.opacity = "0.5"; }
-        else { input.disabled = false; input.style.opacity = "1"; }
+        input.value = check.checked ? "0.0" : "";
+        input.disabled = check.checked;
     }
 
+    // --- MOTOR DE CÁLCULO METEOROLÓGICO ---
     function logicaCalculo(origen) {
         const tsInput = document.getElementById('t_seco');
         const twInput = document.getElementById('t_hum');
         const tdInput = document.getElementById('t_rocio');
         const hrInput = document.getElementById('hr_res');
+        const P = parseFloat(document.getElementById('p_qfe').value) || 1013.2;
+
         const T = parseFloat(tsInput.value);
         let Tw = parseFloat(twInput.value);
         let Td = parseFloat(tdInput.value);
-        const P = parseFloat(document.getElementById('p_qfe').value) || 1013.2;
+
         const calc_e_sat = (temp) => 6.112 * Math.exp((17.67 * temp) / (temp + 243.5));
 
         if (origen !== 'rocio' && !isNaN(T) && !isNaN(Tw)) {
@@ -551,11 +293,11 @@
             const gamma = Math.log(e / 6.112);
             tdInput.value = ((243.5 * gamma) / (17.67 - gamma)).toFixed(1);
             hrInput.value = Math.round(hr) + " %";
-        } 
-        else if (origen === 'rocio' && !isNaN(T) && !isNaN(Td)) {
+        } else if (origen === 'rocio' && !isNaN(T) && !isNaN(Td)) {
             const es = calc_e_sat(T);
             const e_actual = calc_e_sat(Td);
             hrInput.value = Math.round((e_actual / es) * 100) + " %";
+            // Búsqueda de T. Húmeda inversa
             let th_iter = T; let step = 10.0;
             for(let i=0; i<15; i++) {
                 let e_calc = calc_e_sat(th_iter) - (0.000662 * P * (T - th_iter));
@@ -566,25 +308,36 @@
         }
     }
 
-    async function descargarPDF() {
-        const { jsPDF } = window.jspdf;
+    async function mostrarVistaPrevia() {
         const cont = document.getElementById('form-content');
-        const btns = document.querySelector('.actions');
-        btns.style.display = 'none';
+        document.querySelector('.actions').style.display = 'none';
         cont.classList.add('pdf-mode');
+        document.getElementById('modal-preview').style.display = 'flex';
+        
+        const canvas = await html2canvas(cont, { scale: 2.5 });
+        window.canvasGlobal = canvas;
+        
+        document.getElementById('preview-canvas-container').innerHTML = "";
+        document.getElementById('preview-canvas-container').appendChild(canvas);
+        cont.classList.remove('pdf-mode');
+        document.querySelector('.actions').style.display = 'grid';
+    }
 
-        try {
-            const canvas = await html2canvas(cont, { scale: 2 });
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const imgWidth = pageWidth - 20;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, imgWidth, imgHeight);
-            pdf.save(`REGISTRO_${document.getElementById('estacion_nombre').value || 'METEO'}.pdf`);
-        } finally {
-            cont.classList.remove('pdf-mode');
-            btns.style.display = 'grid';
-        }
+    function cerrarModal() { document.getElementById('modal-preview').style.display = 'none'; }
+
+    function descargarPDFDefinitivo() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgData = window.canvasGlobal.toDataURL('image/png');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const totalImgHeight = (window.canvasGlobal.height * pdfWidth) / window.canvasGlobal.width;
+        
+        pdf.addImage(imgData, 'PNG', 0, 5, pdfWidth, totalImgHeight);
+        
+        const est = document.getElementById('estacion_nombre').value || 'ESTACION';
+        const utc = document.getElementById('horario_utc').value || '00';
+        pdf.save(`FARO ${est} ${utc} UTC.pdf`);
+        cerrarModal();
     }
 </script>
 </body>
