@@ -13,11 +13,23 @@
             --bg-body: #f0f4f8; --bg-card: #ffffff; --accent: #0056b3;
             --accent-light: #eef6ff; --gold: #b8860b; --text-main: #1a202c;
             --text-muted: #4a5568; --border: #cbd5e0; --danger: #d32f2f;
-            --success: #27ae60;
+            --success: #27ae60; --warning: #ff9800;
         }
 
         body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { max-width: 950px; width: 100%; }
+        .container { max-width: 950px; width: 100%; position: relative; }
+
+        /* Alerta Amigable */
+        .alert-box {
+            display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; width: 90%; max-width: 500px; padding: 15px; border-radius: 8px;
+            background: white; border-left: 6px solid var(--danger);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+        .alert-content { display: flex; align-items: center; gap: 15px; }
+        .alert-text b { display: block; color: var(--danger); font-size: 1rem; }
+        .alert-text p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
 
         .header-estacion {
             display: flex; justify-content: space-between; align-items: center;
@@ -48,6 +60,12 @@
         .auto-calc { background: var(--accent-light); color: var(--accent); font-weight: bold; border: 1px solid #b3d7ff; }
         .hidden-section { display: none; }
         
+        #footer-firma {
+            margin-top: 30px; padding: 20px; text-align: center;
+            border-top: 1px solid var(--border); color: var(--accent);
+            font-weight: 700; letter-spacing: 0.5px;
+        }
+
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         button { padding: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; border: none; }
         .btn-save { background: var(--accent); color: white; }
@@ -59,6 +77,16 @@
     </style>
 </head>
 <body>
+
+<div id="custom-alert" class="alert-box" onclick="this.style.display='none'">
+    <div class="alert-content">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-text">
+            <b id="alert-title">Error de Validación</b>
+            <p id="alert-msg">Mensaje de error aquí.</p>
+        </div>
+    </div>
+</div>
 
 <div class="container" id="form-content">
     <div class="header-estacion">
@@ -129,7 +157,7 @@
             <div class="field"><label>Caract. (a)</label>
                 <select id="p_caract"><option value="">--</option><option value="2">2-Subiendo</option><option value="4">4-Estac.</option><option value="7">7-Bajando</option></select>
             </div>
-            <div class="field"><label>Valor (ppp)</label><input type="number" step="0.1" placeholder="hPa"></div>
+            <div class="field"><label>ppp (tendencia)</label><input type="number" step="0.1"></div>
         </div>
         <div id="bloque_precipitacion" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="grid-inputs">
@@ -145,15 +173,9 @@
         <div class="section-title">4. Visibilidad</div>
         <div class="grid-inputs">
             <div class="field">
-                <label>Visibilidad Observada</label>
                 <select id="sel_vis">
                     <option value="">Seleccione...</option>
-                    <option value="50">0.5 km o menos</option>
-                    <option value="60">2 km</option>
-                    <option value="64">4 km</option>
-                    <option value="70">10 km</option>
-                    <option value="80">20 km</option>
-                    <option value="88">50 km o más</option>
+                    <option value="50">0.5 km o menos</option><option value="70">10 km</option><option value="80">20 km</option><option value="88">50 km o más</option>
                 </select>
             </div>
         </div>
@@ -162,57 +184,57 @@
     <div class="section-card">
         <div class="section-title">5. Tiempo Presente y Pasado</div>
         <div class="grid-inputs" style="grid-template-columns: 2fr 1fr 1fr;">
-            <div class="field">
-                <label>Tiempo Presente (ww)</label>
-                <select id="ww_val">
-                    <option value="">Seleccione...</option>
-                    <option value="00">00-Despejado</option>
-                    <option value="02">02-Nubes disipándose</option>
-                    <option value="10">10-Neblina</option>
-                    <option value="61">61-Lluvia ligera</option>
-                    <option value="80">80-Chubasco ligero</option>
-                </select>
-            </div>
-            <div class="field"><label>W1</label><select id="w1_val"><option value="">--</option><option value="0">0-Nubes</option><option value="6">6-Lluvia</option></select></div>
-            <div class="field"><label>W2</label><select id="w2_val"><option value="">--</option><option value="0">0-Nubes</option><option value="8">8-Chub.</option></select></div>
+            <div class="field"><label>ww</label><select id="ww_val"><option value="">Seleccione...</option><option>00-Desp.</option><option>61-Lluvia</option></select></div>
+            <div class="field"><label>W1</label><select id="w1_val"><option value="">--</option></select></div>
+            <div class="field"><label>W2</label><select id="w2_val"><option value="">--</option></select></div>
         </div>
     </div>
 
     <div class="section-card">
-        <div class="section-title">6. Tipos de Nubes (8NhCLCMCH)</div>
+        <div class="section-title">6. Tipos de Nubes</div>
         <div class="grid-inputs">
-            <div class="field"><label>N</label><select id="n_total"><option value="">--</option><option value="0">0/8</option><option value="4">4/8</option><option value="8">8/8</option></select></div>
-            <div class="field"><label>Nh</label><select id="nh_val"><option value="">--</option><option value="0">0/8</option><option value="5">5/8</option></select></div>
-            <div class="field"><label>CL</label><select id="cl_val"><option value="">--</option><option value="0">0-Sin</option><option value="5">5-Sc</option></select></div>
-            <div class="field"><label>CM</label><select id="cm_val"><option value="">--</option><option value="0">0-Sin</option><option value="2">2-As</option></select></div>
-            <div class="field"><label>CH</label><select id="ch_val"><option value="">--</option><option value="0">0-Sin</option><option value="1">1-Ci Fib.</option></select></div>
+            <div class="field"><label>N (Total)</label><select id="n_total"><option value="">--</option></select></div>
+            <div class="field"><label>Nh</label><select id="nh_val"><option value="">--</option></select></div>
+            <div class="field"><label>CL</label><select id="cl_val"><option value="">--</option></select></div>
+            <div class="field"><label>CM</label><select id="cm_val"><option value="">--</option></select></div>
+            <div class="field"><label>CH</label><select id="ch_val"><option value="">--</option></select></div>
         </div>
     </div>
 
     <div class="section-card">
         <div class="section-title">7. Capas de Nubes</div>
-        <div class="grid-inputs" style="margin-bottom:8px;"><div class="field"><label>Capa 1</label><input type="text"></div><div class="field"><label>Género</label><select id="g1"><option value="">--</option><option>Sc</option><option>St</option></select></div><div class="field"><label>Altura (m)</label><input type="number"></div></div>
-        <div class="grid-inputs" style="margin-bottom:8px;"><div class="field"><label>Capa 2</label><input type="text"></div><div class="field"><label>Género</label><select id="g2"><option value="">--</option><option>Ac</option><option>As</option></select></div><div class="field"><label>Altura (m)</label><input type="number"></div></div>
-        <div class="grid-inputs"><div class="field"><label>Capa 3</label><input type="text"></div><div class="field"><label>Género</label><select id="g3"><option value="">--</option><option>Ci</option></select></div><div class="field"><label>Altura (m)</label><input type="number"></div></div>
+        <div class="grid-inputs" style="margin-bottom:8px;"><div class="field"><label>Capa 1</label><input type="text"></div><div class="field"><label>Género</label><select id="g1"><option value="">--</option></select></div><div class="field"><label>Altura (m)</label><input type="number"></div></div>
+        <div class="grid-inputs" style="margin-bottom:8px;"><div class="field"><label>Capa 2</label><input type="text"></div><div class="field"><label>Género</label><select id="g2"><option value="">--</option></select></div><div class="field"><label>Altura (m)</label><input type="number"></div></div>
+        <div class="grid-inputs"><div class="field"><label>Capa 3</label><input type="text"></div><div class="field"><label>Género</label><select id="g3"><option value="">--</option></select></div><div class="field"><label>Altura (m)</label><input type="number"></div></div>
     </div>
 
     <div id="bloque_suelo_seccion" class="section-card hidden-section">
         <div class="section-title">8. Estado del Suelo (E)</div>
-        <div class="grid-inputs">
-            <div class="field"><label>Condición</label><select id="e_suelo"><option value="">Seleccione...</option><option value="0">0-Seco</option><option value="1">1-Húmedo</option></select></div>
-        </div>
+        <div class="grid-inputs"><div class="field"><label>Condición</label><select id="e_suelo"><option value="">Seleccione...</option></select></div></div>
     </div>
 
     <div class="section-card">
         <div class="section-title">9. Estado del Mar</div>
         <div class="grid-inputs">
-            <div class="field"><label>Dir. Swell (°)</label><input type="number"></div>
-            <div class="field"><label>Swell (m)</label><input type="number" step="0.1"></div>
-            <div class="field"><label>Altura Mar (m)</label><input type="number" step="0.1"></div>
-            <div class="field"><label>Douglas</label><select id="douglas_val"><option value="">--</option><option>3-Marejadilla</option><option>4-Marejada</option></select></div>
+            <div class="field"><label>Dir. Swell (°)</label><input type="number" id="m_dir_swell"></div>
+            <div class="field"><label>Swell (m)</label><input type="number" step="0.1" id="m_alt_swell"></div>
+            <div class="field"><label>Altura Mar (m)</label><input type="number" step="0.1" id="m_alt_mar"></div>
+            <div class="field"><label>Douglas</label>
+                <select id="douglas_val">
+                    <option value="">--</option>
+                    <option value="0">0 - Calma</option>
+                    <option value="1">1 - Calma (Rizada)</option>
+                    <option value="2">2 - Marejadilla</option>
+                    <option value="3">3 - Marejada</option>
+                    <option value="4">4 - Fuerte Marejada</option>
+                    <option value="5">5 - Gruesa</option>
+                </select>
+            </div>
         </div>
         <div class="field" style="margin-top:15px;"><label>Observaciones</label><textarea id="obs_texto" rows="3"></textarea></div>
     </div>
+
+    <div id="footer-firma">Creado por Cabo 1º (Met.) Francisco Salas Muñoz</div>
 
     <div class="actions">
         <button type="button" class="btn-save" onclick="location.reload()">Refrescar</button>
@@ -225,7 +247,7 @@
         <div id="preview-canvas-container" style="text-align:center;"></div>
         <div style="text-align:center; margin-top:20px;">
             <button style="background:#666; color:white; padding:10px 20px; border-radius:6px;" onclick="cerrarModal()">Editar</button>
-            <button style="background:var(--success); color:white; padding:10px 20px; border-radius:6px;" onclick="descargarPDFDefinitivo()">Descargar (Completo)</button>
+            <button style="background:var(--success); color:white; padding:10px 20px; border-radius:6px;" onclick="descargarPDFDefinitivo()">Descargar Documento</button>
         </div>
     </div>
 </div>
@@ -240,22 +262,27 @@
     }
     setInterval(actualizarReloj, 1000); actualizarReloj();
 
+    function showAlert(title, msg) {
+        const box = document.getElementById('custom-alert');
+        document.getElementById('alert-title').innerText = title;
+        document.getElementById('alert-msg').innerText = msg;
+        box.style.display = 'block';
+        setTimeout(() => { box.style.display = 'none'; }, 5000);
+    }
+
     function gestionarVisibilidad() {
         const h = document.getElementById('horario_utc').value;
         document.getElementById('bloque_precipitacion').style.display = (["00", "06", "12", "18"].includes(h)) ? 'block' : 'none';
-        document.getElementById('bloque_suelo_seccion').style.display = (h === "12") ? 'block' : 'none';
         document.getElementById('bloque_minima').style.display = (h === "12") ? 'block' : 'none';
         document.getElementById('bloque_maxima').style.display = (h === "00") ? 'block' : 'none';
+        document.getElementById('bloque_suelo_seccion').style.display = (h === "12") ? 'block' : 'none';
     }
 
     function manejarTrazas() {
         const check = document.getElementById('check_trazas');
         const input = document.getElementById('precip_valor');
-        if (check.checked) { 
-            input.value = "TRAZAS"; input.disabled = true; input.style.color = "var(--danger)"; 
-        } else { 
-            input.value = ""; input.disabled = false; input.style.color = "var(--text-main)"; 
-        }
+        if (check.checked) { input.value = "TRAZAS"; input.disabled = true; input.style.color = "var(--danger)"; } 
+        else { input.value = ""; input.disabled = false; input.style.color = "var(--text-main)"; }
     }
 
     function logicaCalculo(origen) {
@@ -294,16 +321,34 @@
     }
 
     async function mostrarVistaPrevia() {
+        const tSeca = parseFloat(document.getElementById('t_seco').value);
+        const tMaxVal = parseFloat(document.getElementById('val_maxima').value);
+        const tMinVal = parseFloat(document.getElementById('val_minima').value);
+        const hUTC = document.getElementById('horario_utc').value;
+
+        if (!isNaN(tSeca)) {
+            if (hUTC === "00" && !isNaN(tMaxVal) && tMaxVal < tSeca) {
+                showAlert("Error en T. Máxima", `La máxima (${tMaxVal}°) no puede ser menor a la actual (${tSeca}°).`);
+                return;
+            }
+            if (hUTC === "12" && !isNaN(tMinVal) && tMinVal > tSeca) {
+                showAlert("Error en T. Mínima", `La mínima (${tMinVal}°) no puede ser mayor a la actual (${tSeca}°).`);
+                return;
+            }
+        }
+
         const cont = document.getElementById('form-content');
+        const firma = document.getElementById('footer-firma');
         document.querySelector('.actions').style.display = 'none';
         cont.classList.add('pdf-mode');
+        firma.style.display = 'none';
 
         const allInputs = cont.querySelectorAll('input, select, textarea');
         allInputs.forEach(el => {
-            if (el.tagName === 'SELECT' && (el.value === "" || el.options[el.selectedIndex].text.includes("SELECCIONAR") || el.options[el.selectedIndex].text.includes("Seleccione"))) {
+            if (el.tagName === 'SELECT' && (el.value === "" || el.options[el.selectedIndex].text.includes("--") || el.options[el.selectedIndex].text.includes("Seleccione"))) {
                 el.style.opacity = "0"; 
             }
-            if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && (el.value === "" || el.value === "NaN")) {
+            if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.value === "") {
                 el.style.opacity = "0";
             }
         });
@@ -312,6 +357,7 @@
         canvasGlobal = await html2canvas(cont, { scale: 2, useCORS: true });
         
         allInputs.forEach(el => el.style.opacity = "1");
+        firma.style.display = 'block';
         document.getElementById('preview-canvas-container').innerHTML = "";
         document.getElementById('preview-canvas-container').appendChild(canvasGlobal);
         cont.classList.remove('pdf-mode');
@@ -321,43 +367,18 @@
     function cerrarModal() { document.getElementById('modal-preview').style.display = 'none'; }
 
     function descargarPDFDefinitivo() {
-        const tSeca = parseFloat(document.getElementById('t_seco').value);
-        const tMaxInput = document.getElementById('val_maxima');
-        const tMinInput = document.getElementById('val_minima');
-        const hUTC = document.getElementById('horario_utc').value;
-
-        if (!isNaN(tSeca)) {
-            if (hUTC === "00" && tMaxInput.value !== "" && parseFloat(tMaxInput.value) < tSeca) {
-                alert(`Error: T. Máxima (${tMaxInput.value}°) no puede ser menor a T. Seca (${tSeca}°).`); return;
-            }
-            if (hUTC === "12" && tMinInput.value !== "" && parseFloat(tMinInput.value) > tSeca) {
-                alert(`Error: T. Mínima (${tMinInput.value}°) no puede ser mayor a T. Seca (${tSeca}°).`); return;
-            }
-        }
-
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgData = canvasGlobal.toDataURL('image/jpeg', 0.8);
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pageWidth;
-        const imgHeight = (canvasGlobal.height * imgWidth) / canvasGlobal.width;
+        const imgWidth = canvasGlobal.width;
+        const imgHeight = canvasGlobal.height;
+        const pageWidth = 210; 
+        const pdfHeight = (imgHeight * pageWidth) / imgWidth;
 
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
-
-        const estacion = document.getElementById('estacion_nombre').value || 'ESTACION';
-        pdf.save(`FARO_${estacion}_${hUTC || 'UTC'}.pdf`);
+        const pdf = new jsPDF('p', 'mm', [pageWidth, pdfHeight]);
+        const imgData = canvasGlobal.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pdfHeight);
+        
+        const est = document.getElementById('estacion_nombre').value || 'REPORTE';
+        pdf.save(`FARO_${est}_${document.getElementById('horario_utc').value || 'MET'}.pdf`);
         cerrarModal();
     }
 </script>
