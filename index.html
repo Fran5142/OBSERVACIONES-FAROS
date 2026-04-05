@@ -25,7 +25,6 @@
         body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { max-width: 950px; width: 100%; position: relative; }
 
-        /* Alerta */
         .alert-box {
             display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             z-index: 2000; width: 90%; max-width: 500px; padding: 15px; border-radius: 8px;
@@ -59,11 +58,30 @@
         .field { display: flex; flex-direction: column; }
 
         label { font-size: 0.75rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;}
-        input, textarea, select { background: #fff; border: 1px solid var(--border); color: var(--text-main); padding: 12px 5px; border-radius: 6px; text-align: center; text-align-last: center; font-size: 1.2rem; font-weight: 600; width: 100%; box-sizing: border-box; }
+
+        input, textarea, select { 
+            background: #fff; 
+            border: 1px solid var(--border); 
+            color: var(--text-main); 
+            height: 40px; 
+            line-height: 0.8; 
+            padding-top: 3px; 
+            padding-bottom: 1px; 
+            border-radius: 6px; 
+            text-align: center; 
+            text-align-last: center; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            width: 100%; 
+            box-sizing: border-box; 
+            display: block;
+        }
+        
+        #check_trazas { width: 18px !important; height: 18px !important; cursor: pointer; }
+
         .auto-calc { background: #eff6ff; color: var(--accent-blue); font-weight: bold; border: 1px solid #bfdbfe; }
         .hidden-section { display: none; }
         
-        /* Firma Visual Web */
         #footer-firma {
             margin-top: 40px; padding: 25px; text-align: center;
             background: rgba(15, 23, 42, 0.4); border-radius: 12px;
@@ -80,7 +98,6 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 950px; width: 100%; max-height: 95vh; overflow-y: auto; }
         
-        /* Ajustes PDF */
         .pdf-mode { background: white !important; width: 950px !important; padding: 20px !important; }
     </style>
 </head>
@@ -138,20 +155,20 @@
     <div class="section-card">
         <div class="section-title">2. Temperaturas e Higrometría</div>
         <div class="grid-inputs">
-            <div class="field"><label>T. Seca (°C)</label><input type="number" step="0.1" id="t_seco" oninput="logicaCalculo('seco')"></div>
+            <div class="field"><label>T. Seca (°C)</label><input type="number" step="0.1" id="t_seco" oninput="logicaCalculo('seco'); validarExtremosAutomatico();"></div>
             <div class="field"><label>T. Húmeda (°C)</label><input type="number" step="0.1" id="t_hum" oninput="logicaCalculo('hum')"></div>
             <div class="field"><label>T. Rocío (°C)</label><input type="number" step="0.1" id="t_rocio" oninput="logicaCalculo('rocio')"></div>
             <div class="field"><label>HR (%)</label><input type="text" id="hr_res" class="auto-calc" readonly></div>
         </div>
         <div id="bloque_maxima" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="grid-inputs">
-                <div class="field"><label style="color:var(--gold)">T. Máxima</label><input type="number" step="0.1" id="val_maxima"></div>
+                <div class="field"><label style="color:var(--gold)">T. Máxima</label><input type="number" step="0.1" id="val_maxima" oninput="validarExtremosAutomatico()"></div>
                 <div class="field"><label style="color:var(--gold)">Hora local</label><input type="time"></div>
             </div>
         </div>
         <div id="bloque_minima" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="grid-inputs">
-                <div class="field"><label style="color:var(--accent-blue)">T. Mínima</label><input type="number" step="0.1" id="val_minima"></div>
+                <div class="field"><label style="color:var(--accent-blue)">T. Mínima</label><input type="number" step="0.1" id="val_minima" oninput="validarExtremosAutomatico()"></div>
                 <div class="field"><label style="color:var(--accent-blue)">Hora local</label><input type="time"></div>
             </div>
         </div>
@@ -168,10 +185,17 @@
             <div class="field"><label>ppp (tendencia)</label><input type="number" step="0.1"></div>
         </div>
         <div id="bloque_precipitacion" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
-            <div class="grid-inputs">
-                <div class="field"><label>Agua Caída (mm)</label><input type="text" id="precip_valor"></div>
+            <div class="grid-inputs" id="grid_precip">
+                <div class="field">
+                    <label>Agua Caída 6h (mm)</label>
+                    <input type="text" id="precip_valor" placeholder="0.0">
+                </div>
+                <div class="field" id="contenedor_24h">
+                    <label>Agua Caída 24h (mm)</label>
+                    <input type="text" id="precip_24h" placeholder="0.0">
+                </div>
                 <div class="field" style="flex-direction:row; align-items:center; gap:8px; margin-top:20px;">
-                    <input type="checkbox" id="check_trazas" onchange="manejarTrazas()"> <label style="margin:0">TRAZAS</label>
+                    <input type="checkbox" id="check_trazas" onchange="manejarTrazas()"> <label style="margin:0; font-size: 0.75rem;">TRAZAS</label>
                 </div>
             </div>
         </div>
@@ -184,12 +208,12 @@
                 <select id="sel_vis">
                     <option value="">Seleccione...</option>
                     <option value="50">50 m o menos</option>
-		    <option value="200">200 m</option>
-		    <option value="500">500 m</option>
-		    <option value="1">1 km</option>
-		    <option value="2">2 km</option>
-		    <option value="4">4 km</option>
-		    <option value="10">10 km</option>
+		            <option value="200">200 m</option>
+		            <option value="500">500 m</option>
+		            <option value="1">1 km</option>
+		            <option value="2">2 km</option>
+		            <option value="4">4 km</option>
+		            <option value="10">10 km</option>
                 </select>
             </div>
         </div>
@@ -199,7 +223,7 @@
         <div class="section-title">5. Tiempo Presente y Pasado</div>
         <div class="field" style="margin-bottom: 15px;">
             <label>Tiempo Presente</label>
-           <select class="clave-input">
+            <select class="clave-input">
 <optgroup label="00–09 | Estado del cielo / sin precipitación">
 <option value="00">00 - Estado del cielo no observado</option>
 <option value="01">01 - Nubes en disminución</option>
@@ -322,11 +346,9 @@
 </optgroup>
             </select>
         </div>
-
         <div class="grid-inputs" style="grid-template-columns: 1fr 1fr;">
-            <div class="field">
-                <label>Pasado 1</label>
-                <select class="clave-input">
+            <div class="field"><label>Pasado 1</label>
+<select class="clave-input">
                     <option value="0">0 - Nubes cubriendo la mitad o menos</option>
                     <option value="1">1 - Nubes > mitad (parte período)</option>
                     <option value="2">2 - Nubes > mitad (todo período)</option>
@@ -338,10 +360,9 @@
                     <option value="8">8 - Chubascos</option>
                     <option value="9">9 - Tormenta eléctrica</option>
                 </select>
-            </div>
-            <div class="field">
-                <label>Pasado 2</label>
-                <select class="clave-input">
+</div>
+            <div class="field"><label>Pasado 2</label>
+<select class="clave-input">
                     <option value="0">0 - Nubes cubriendo la mitad o menos</option>
                     <option value="1">1 - Nubes > mitad (parte período)</option>
                     <option value="2">2 - Nubes > mitad (todo período)</option>
@@ -353,15 +374,14 @@
                     <option value="8">8 - Chubascos</option>
                     <option value="9">9 - Tormenta eléctrica</option>
                 </select>
-            </div>
+</div>
         </div>
     </div>
 
     <div class="section-card">
         <div class="section-title">7. Tipos de Nubes</div>
-        <div class="grid-inputs">
-            <div class="field"><label>Total Nubosidad </label><select class="clave-input">
-<option value="0">0</option>
+        <div class="grid-inputs" style="margin-bottom: 15px;">
+            <div class="field"><label>Total Nubosidad</label><select class="clave-input"><option value="0">0</option>
 <option value="1">1</option>
 <option value="2">2</option>
 <option value="3">3</option>
@@ -371,9 +391,8 @@
 <option value="7">7</option>
 <option value="8">8</option>
 <option value="9"> 9.- Cielo Oscurecido</option>
-</select></div>
-
-
+</select>
+</div>
             <div class="field"><label>Octas</label><select class="clave-input">
 <option value="0">0</option>
 <option value="1">1</option>
@@ -385,9 +404,11 @@
 <option value="7">7</option>
 <option value="8">8</option>
 <option value="9"> 9.- Cielo Oscurecido</option>
-</select></div>
-
-            <div class="field"><label> Nubes Baja</label>
+</select>
+</div>
+        </div>
+        <div class="grid-inputs">
+            <div class="field"><label>Nubes Baja</label>
 <select class="clave-input">
 <option value="0">0 - Sin nubes bajas</option>
 <option value="1">1 - Cúmulos humilis o fractus (buen tiempo)</option>
@@ -400,8 +421,8 @@
 <option value="8">8 - Cúmulos y stratocumulus en distintos niveles</option>
 <option value="9">9 - Cumulonimbus capillatus (yunque)</option>
 <option value="/">/ - Nubes bajas invisibles (niebla/polvo/etc.)</option>
-                </select>
-            </div>
+</select>
+</div>
             <div class="field"><label>Nubes Media</label>
 <select class="clave-input">
 <option value="0">0 - Sin nubes medias</option>
@@ -415,8 +436,8 @@
 <option value="8">8 - Altocúmulos flocus o castellatus</option>
 <option value="9">9 - Altocúmulos en cielo caótico (varios niveles)</option>
 <option value="/">/ - Nubes medias invisibles (niebla/polvo/etc.)</option>
-                </select>
-            </div>
+</select>
+</div>
             <div class="field"><label>Nubes Alta</label>
 <select class="clave-input">
 <option value="0">0 - Sin nubes altas</option>
@@ -430,8 +451,8 @@
 <option value="8">8 - Cirrostratus parcial sin aumento</option>
 <option value="9">9 - Cirrocúmulos predominantes</option>
 <option value="/">/ - Nubes altas invisibles</option>
-                </select>
-            </div>
+</select>
+</div>
         </div>
     </div>
 
@@ -441,8 +462,8 @@
             <span>CANTIDAD</span><span>GÉNERO</span><span>ALTURA</span>
         </div>
         <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8">
-<select class="clave-input">
+            <input type="text" class="clave-input" placeholder="0-8 BAJAS">
+            <select class="clave-input">
 <option value="-">-</option>
 <option value="0">0 - Cirrus (Ci)</option>
 <option value="1">1 - Cirrocúmulus (Cc)</option>
@@ -455,12 +476,13 @@
 <option value="8">8 - Cúmulus (Cu)</option>
 <option value="9">9 - Cúmulonimbus (Cb)</option>
 <option value="/">/ - No se observan nubes</option>
-            </select>
+</select>
             <input type="number" placeholder="m">
         </div>
+
         <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8">
-<select class="clave-input">
+            <input type="text" class="clave-input" placeholder="0-8 MEDIAS">
+            <select class="clave-input">
 <option value="-">-</option>
 <option value="0">0 - Cirrus (Ci)</option>
 <option value="1">1 - Cirrocúmulus (Cc)</option>
@@ -473,12 +495,13 @@
 <option value="8">8 - Cúmulus (Cu)</option>
 <option value="9">9 - Cúmulonimbus (Cb)</option>
 <option value="/">/ - No se observan nubes</option>
-            </select>
+</select>
             <input type="number" placeholder="m">
         </div>
-<div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8">
-<select class="clave-input">
+
+        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
+            <input type="text" class="clave-input" placeholder="0-8 ALTAS">
+            <select class="clave-input">
 <option value="-">-</option>
 <option value="0">0 - Cirrus (Ci)</option>
 <option value="1">1 - Cirrocúmulus (Cc)</option>
@@ -491,20 +514,18 @@
 <option value="8">8 - Cúmulus (Cu)</option>
 <option value="9">9 - Cúmulonimbus (Cb)</option>
 <option value="/">/ - No se observan nubes</option>
-            </select>
+</select>
             <input type="number" placeholder="m">
         </div>
 
-    </div>
 
-    <div id="bloque_suelo_seccion" class="section-card hidden-section">
-        <div class="section-title">8. Estado del Suelo</div>
-        <div class="grid-inputs">
-        <div class="field">
-        <label>Condición</label>
-        <select id="e_suelo">
-        <option value="">Seleccione...</option>
-<option value="0">0 - Superficie del suelo seca (sin polvo o arena suelta)</option>
+
+        
+        <div id="bloque_suelo_seccion" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
+            <div class="field">
+                <label>Estado del Suelo (E)</label>
+                <select id="e_suelo">
+                    <option value="">Seleccione...</option>
                     <option value="1">1 - Superficie del suelo húmeda</option>
                     <option value="2">2 - Superficie del suelo mojada (charcos pequeños)</option>
                     <option value="3">3 - Superficie inundada (charcos grandes)</option>
@@ -515,35 +536,25 @@
                     <option value="8">8 - Capa moderada o gruesa de polvo o arena cubriendo el suelo</option>
                     <option value="9">9 - Suelo extremadamente seco con grietas</option>
                 </select>
-
-</div>
-</div>
+            </div>
+        </div>
     </div>
-
-
-
-
 
     <div class="section-card">
         <div class="section-title">9. Estado del Mar</div>
         <div class="grid-inputs">
             <div class="field"><label>Dirección Olas</label><input type="number" id="m_dir_swell"></div>
             <div class="field"><label>Periodo (s)</label><input type="number" step="0.1" id="m_alt_swell"></div>
-
-
-
             <div class="field"><label>Altura Mar (m)</label><input type="number" step="0.1" id="m_alt_mar"></div>
-            <div class="field"><label>Douglas</label>
-                <select id="douglas_val">
-                    <option value="">--</option>
-
+            <div class="field"><label> Estado de mar Claro </label><select id="douglas_val">
+                    <option value="-">-</option>
                     <option value="0">0 - Calma</option>
                     <option value="2">2 - Rizada</option>
                     <option value="3">3 - Marejadilla</option>
                     <option value="4">4 - Marejada</option>
                     <option value="5">5 - Gruesa</option>
-                </select>
-            </div>
+</select>
+</div>
         </div>
         <div class="field" style="margin-top:15px;"><label>Observaciones</label><textarea id="obs_texto" rows="3"></textarea></div>
     </div>
@@ -587,19 +598,77 @@
         setTimeout(() => { box.style.display = 'none'; }, 5000);
     }
 
+    // MODIFICADO: Gestión de visibilidad específica para Agua Caída 24h a las 12 UTC
     function gestionarVisibilidad() {
         const h = document.getElementById('horario_utc').value;
-        document.getElementById('bloque_precipitacion').style.display = (["00", "06", "12", "18"].includes(h)) ? 'block' : 'none';
+        const bloquePrecip = document.getElementById('bloque_precipitacion');
+        const cont24h = document.getElementById('contenedor_24h');
+        const gridPrecip = document.getElementById('grid_precip');
+
+        // Mostrar sección de precipitación en las horas principales
+        bloquePrecip.style.display = (["00", "06", "12", "18"].includes(h)) ? 'block' : 'none';
+        
+        // MODIFICACIÓN SOLICITADA: Solo mostrar 24h a las 12 UTC
+        if (h === "12") {
+            cont24h.style.display = 'block';
+            gridPrecip.style.gridTemplateColumns = '1fr 1fr 0.5fr';
+        } else {
+            cont24h.style.display = 'none';
+            gridPrecip.style.gridTemplateColumns = '1fr 0.5fr'; // Se ajusta el ancho si no hay 24h
+        }
+
         document.getElementById('bloque_minima').style.display = (h === "12") ? 'block' : 'none';
         document.getElementById('bloque_maxima').style.display = (h === "00") ? 'block' : 'none';
         document.getElementById('bloque_suelo_seccion').style.display = (h === "12") ? 'block' : 'none';
+        
+        validarExtremosAutomatico();
     }
 
     function manejarTrazas() {
         const check = document.getElementById('check_trazas');
-        const input = document.getElementById('precip_valor');
-        if (check.checked) { input.value = "TRAZAS"; input.disabled = true; input.style.color = "var(--danger)"; } 
-        else { input.value = ""; input.disabled = false; input.style.color = "var(--text-main)"; }
+        const input6h = document.getElementById('precip_valor');
+        if (check.checked) { 
+            input6h.value = "TRAZAS"; 
+            input6h.disabled = true; 
+            input6h.style.color = "var(--danger)"; 
+        } 
+        else { 
+            input6h.value = ""; 
+            input6h.disabled = false; 
+            input6h.style.color = "var(--text-main)"; 
+        }
+    }
+
+    function validarExtremosAutomatico() {
+        const tSeca = parseFloat(document.getElementById('t_seco').value);
+        const tMaxInput = document.getElementById('val_maxima');
+        const tMinInput = document.getElementById('val_minima');
+        const hUTC = document.getElementById('horario_utc').value;
+
+        tMaxInput.style.borderColor = "var(--border)";
+        tMaxInput.style.color = "var(--text-main)";
+        tMinInput.style.borderColor = "var(--border)";
+        tMinInput.style.color = "var(--text-main)";
+
+        if (isNaN(tSeca)) return;
+
+        if (hUTC === "00" && tMaxInput.value !== "") {
+            const tMax = parseFloat(tMaxInput.value);
+            if (tMax < tSeca) {
+                tMaxInput.style.borderColor = "var(--danger)";
+                tMaxInput.style.color = "var(--danger)";
+                showAlert("Error de Consistencia", `La T. Máxima (${tMax}°) no puede ser menor a la T. Seca (${tSeca}°).`);
+            }
+        }
+
+        if (hUTC === "12" && tMinInput.value !== "") {
+            const tMin = parseFloat(tMinInput.value);
+            if (tMin > tSeca) {
+                tMinInput.style.borderColor = "var(--danger)";
+                tMinInput.style.color = "var(--danger)";
+                showAlert("Error de Consistencia", `La T. Mínima (${tMin}°) no puede ser mayor a la T. Seca (${tSeca}°).`);
+            }
+        }
     }
 
     function logicaCalculo(origen) {
@@ -645,11 +714,11 @@
 
         if (!isNaN(tSeca)) {
             if (hUTC === "00" && !isNaN(tMaxVal) && tMaxVal < tSeca) {
-                showAlert("Validación", `T. Máxima (${tMaxVal}°) no puede ser menor a Seca (${tSeca}°).`);
+                showAlert("Validación Fallida", "Corrija los errores de temperatura máxima antes de continuar.");
                 return;
             }
             if (hUTC === "12" && !isNaN(tMinVal) && tMinVal > tSeca) {
-                showAlert("Validación", `T. Mínima (${tMinVal}°) no puede ser mayor a Seca (${tSeca}°).`);
+                showAlert("Validación Fallida", "Corrija los errores de temperatura mínima antes de continuar.");
                 return;
             }
         }
@@ -658,10 +727,9 @@
         const firma = document.getElementById('footer-firma');
         const actions = document.querySelector('.actions');
 
-        // PREPARAR PARA CAPTURA
         actions.style.display = 'none';
         cont.classList.add('pdf-mode');
-        firma.style.display = 'none'; // OCULTAR FIRMA COMPLETAMENTE PARA EL PDF
+        firma.style.display = 'none';
 
         const allInputs = cont.querySelectorAll('input, select, textarea');
         allInputs.forEach(el => {
@@ -676,7 +744,6 @@
         document.getElementById('modal-preview').style.display = 'flex';
         canvasGlobal = await html2canvas(cont, { scale: 2, useCORS: true });
         
-        // RESTAURAR ESTADO PARA LA WEB
         allInputs.forEach(el => el.style.opacity = "1");
         firma.style.display = 'block'; 
         cont.classList.remove('pdf-mode');
@@ -694,12 +761,9 @@
         const imgHeight = canvasGlobal.height;
         const pageWidth = 210; 
         const pdfHeight = (imgHeight * pageWidth) / imgWidth;
-
         const pdf = new jsPDF('p', 'mm', [pageWidth, pdfHeight]);
-        const imgData = canvasGlobal.toDataURL('image/jpeg', 0.95);
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pdfHeight);
+        pdf.addImage(canvasGlobal.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, pdfHeight);
         
-        // Configuración de nombre de archivo solicitada
         const est = document.getElementById('estacion_nombre').value || 'REPORTE';
         const horaUTC = document.getElementById('horario_utc').value || 'MET';
         const fechaHoy = new Date().toLocaleDateString('es-CL').replace(/\//g, '-');
