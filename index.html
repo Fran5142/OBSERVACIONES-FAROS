@@ -109,7 +109,7 @@
                     <option value="CORONA">FARO CORONA</option>
                 </select>
                 <select id="horario_utc" class="header-select" onchange="gestionarVisibilidad()">
-                    <option value="">HORARIO UTC...</option>
+                    <option value="">HORA UTC...</option>
                     <option value="00">00 UTC</option><option value="03">03 UTC</option>
                     <option value="06">06 UTC</option><option value="09">09 UTC</option>
                     <option value="12">12 UTC</option><option value="15">15 UTC</option>
@@ -390,8 +390,12 @@
         const imgData = canvasGlobal.toDataURL('image/jpeg', 0.95);
         pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pdfHeight);
         
+        // Configuración de nombre de archivo solicitada
         const est = document.getElementById('estacion_nombre').value || 'REPORTE';
-        pdf.save(`FARO_${est}_${document.getElementById('horario_utc').value || 'MET'}.pdf`);
+        const horaUTC = document.getElementById('horario_utc').value || 'MET';
+        const fechaHoy = new Date().toLocaleDateString('es-CL').replace(/\//g, '-');
+        
+        pdf.save(`FARO_${est}_${horaUTC}UTC_${fechaHoy}.pdf`);
         cerrarModal();
     }
 </script>
