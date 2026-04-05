@@ -10,16 +10,22 @@
 
     <style>
         :root {
-            --bg-body: #f0f4f8; --bg-card: #ffffff; --accent: #0056b3;
-            --accent-light: #eef6ff; --gold: #b8860b; --text-main: #1a202c;
-            --text-muted: #4a5568; --border: #cbd5e0; --danger: #d32f2f;
-            --success: #27ae60; --warning: #ff9800;
+            --bg-body: #1e293b; 
+            --bg-card: #ffffff; 
+            --accent: #0f172a;
+            --accent-blue: #3b82f6;
+            --gold: #b8860b; 
+            --text-main: #1a202c;
+            --text-muted: #64748b; 
+            --border: #e2e8f0; 
+            --danger: #be123c;
+            --success: #15803d; 
         }
 
         body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { max-width: 950px; width: 100%; position: relative; }
 
-        /* Alerta Amigable */
+        /* Alerta */
         .alert-box {
             display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             z-index: 2000; width: 90%; max-width: 500px; padding: 15px; border-radius: 8px;
@@ -27,15 +33,12 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideDown 0.4s ease;
         }
         @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
-        .alert-content { display: flex; align-items: center; gap: 15px; }
-        .alert-text b { display: block; color: var(--danger); font-size: 1rem; }
-        .alert-text p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
 
         .header-estacion {
             display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-card); padding: 25px; border-radius: 12px; 
-            border-top: 5px solid var(--accent); margin-bottom: 25px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-top: 6px solid var(--accent-blue); margin-bottom: 25px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .inst-name { margin: 0; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
@@ -43,11 +46,11 @@
 
         .selectors-group { display: flex; gap: 15px; }
         select.header-select { height: 45px; padding: 0 12px; border-radius: 6px; font-weight: bold; background: #fff; border: 2px solid var(--border); text-align: center; }
-        #estacion_nombre { width: 300px; border-color: var(--accent); color: var(--accent); }
+        #estacion_nombre { width: 300px; border-color: var(--accent-blue); color: var(--accent-blue); }
         #horario_utc { width: 150px; border-color: var(--gold); color: var(--gold); }
 
         .header-right { text-align: right; background: #f8fafc; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); min-width: 200px; }
-        #hora-local-reloj { font-size: 1.6rem; font-family: 'Courier New', monospace; color: var(--accent); font-weight: bold; display: block; }
+        #hora-local-reloj { font-size: 1.6rem; font-family: 'Courier New', monospace; color: var(--accent-blue); font-weight: bold; display: block; }
 
         .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 15px; position: relative; }
         .section-title { color: var(--gold); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-bottom: 2px solid #f1f1f1; padding-bottom: 5px; font-weight: 800; }
@@ -57,33 +60,38 @@
 
         label { font-size: 0.75rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;}
         input, textarea, select { background: #fff; border: 1px solid var(--border); color: var(--text-main); padding: 12px 5px; border-radius: 6px; text-align: center; text-align-last: center; font-size: 1.2rem; font-weight: 600; width: 100%; box-sizing: border-box; }
-        .auto-calc { background: var(--accent-light); color: var(--accent); font-weight: bold; border: 1px solid #b3d7ff; }
+        .auto-calc { background: #eff6ff; color: var(--accent-blue); font-weight: bold; border: 1px solid #bfdbfe; }
         .hidden-section { display: none; }
         
+        /* Firma Visual Web */
         #footer-firma {
-            margin-top: 30px; padding: 20px; text-align: center;
-            border-top: 1px solid var(--border); color: var(--accent);
-            font-weight: 700; letter-spacing: 0.5px;
+            margin-top: 40px; padding: 25px; text-align: center;
+            background: rgba(15, 23, 42, 0.4); border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
+        .firma-tag { display: block; color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
+        .firma-body { color: #ffffff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 1.1rem; }
 
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         button { padding: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; border: none; }
-        .btn-save { background: var(--accent); color: white; }
+        .btn-save { background: #475569; color: white; }
         .btn-pdf { background: var(--danger); color: white; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 950px; width: 100%; max-height: 95vh; overflow-y: auto; }
+        
+        /* Ajustes PDF */
         .pdf-mode { background: white !important; width: 950px !important; padding: 20px !important; }
     </style>
 </head>
 <body>
 
 <div id="custom-alert" class="alert-box" onclick="this.style.display='none'">
-    <div class="alert-content">
-        <div class="alert-icon">⚠️</div>
-        <div class="alert-text">
-            <b id="alert-title">Error de Validación</b>
-            <p id="alert-msg">Mensaje de error aquí.</p>
+    <div class="alert-content" style="display: flex; align-items: center; gap: 15px; padding: 10px;">
+        <div style="font-size: 2rem;">⚠️</div>
+        <div>
+            <b id="alert-title" style="display: block; color: var(--danger);">Error</b>
+            <p id="alert-msg" style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Mensaje.</p>
         </div>
     </div>
 </div>
@@ -143,8 +151,8 @@
         </div>
         <div id="bloque_minima" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="grid-inputs">
-                <div class="field"><label style="color:var(--accent)">T. Mínima</label><input type="number" step="0.1" id="val_minima"></div>
-                <div class="field"><label style="color:var(--accent)">Hora (UTC)</label><input type="time"></div>
+                <div class="field"><label style="color:var(--accent-blue)">T. Mínima</label><input type="number" step="0.1" id="val_minima"></div>
+                <div class="field"><label style="color:var(--accent-blue)">Hora (UTC)</label><input type="time"></div>
             </div>
         </div>
     </div>
@@ -222,19 +230,19 @@
             <div class="field"><label>Douglas</label>
                 <select id="douglas_val">
                     <option value="">--</option>
-                    <option value="0">0 - Calma</option>
-                    <option value="1">1 - Calma (Rizada)</option>
-                    <option value="2">2 - Marejadilla</option>
-                    <option value="3">3 - Marejada</option>
-                    <option value="4">4 - Fuerte Marejada</option>
-                    <option value="5">5 - Gruesa</option>
+                    <option value="0">0 - Calma</option><option value="1">1 - Calma (Rizada)</option>
+                    <option value="2">2 - Marejadilla</option><option value="3">3 - Marejada</option>
+                    <option value="4">4 - Fuerte Marejada</option><option value="5">5 - Gruesa</option>
                 </select>
             </div>
         </div>
         <div class="field" style="margin-top:15px;"><label>Observaciones</label><textarea id="obs_texto" rows="3"></textarea></div>
     </div>
 
-    <div id="footer-firma">Creado por Cabo 1º (Met.) Francisco Salas Muñoz</div>
+    <div id="footer-firma">
+        <span class="firma-tag">Creado por</span>
+        <span class="firma-body">Cabo 1º (Met.) Francisco Salas Muñoz</span>
+    </div>
 
     <div class="actions">
         <button type="button" class="btn-save" onclick="location.reload()">Refrescar</button>
@@ -245,9 +253,9 @@
 <div class="modal-overlay" id="modal-preview">
     <div class="modal-content">
         <div id="preview-canvas-container" style="text-align:center;"></div>
-        <div style="text-align:center; margin-top:20px;">
-            <button style="background:#666; color:white; padding:10px 20px; border-radius:6px;" onclick="cerrarModal()">Editar</button>
-            <button style="background:var(--success); color:white; padding:10px 20px; border-radius:6px;" onclick="descargarPDFDefinitivo()">Descargar Documento</button>
+        <div style="text-align:center; margin-top:20px; display:flex; gap:10px; justify-content:center;">
+            <button style="background:#666; color:white; padding:10px 20px; border-radius:6px; cursor:pointer;" onclick="cerrarModal()">Editar</button>
+            <button style="background:var(--success); color:white; padding:10px 20px; border-radius:6px; cursor:pointer;" onclick="descargarPDFDefinitivo()">Descargar Reporte</button>
         </div>
     </div>
 </div>
@@ -328,20 +336,23 @@
 
         if (!isNaN(tSeca)) {
             if (hUTC === "00" && !isNaN(tMaxVal) && tMaxVal < tSeca) {
-                showAlert("Error en T. Máxima", `La máxima (${tMaxVal}°) no puede ser menor a la actual (${tSeca}°).`);
+                showAlert("Validación", `T. Máxima (${tMaxVal}°) no puede ser menor a Seca (${tSeca}°).`);
                 return;
             }
             if (hUTC === "12" && !isNaN(tMinVal) && tMinVal > tSeca) {
-                showAlert("Error en T. Mínima", `La mínima (${tMinVal}°) no puede ser mayor a la actual (${tSeca}°).`);
+                showAlert("Validación", `T. Mínima (${tMinVal}°) no puede ser mayor a Seca (${tSeca}°).`);
                 return;
             }
         }
 
         const cont = document.getElementById('form-content');
         const firma = document.getElementById('footer-firma');
-        document.querySelector('.actions').style.display = 'none';
+        const actions = document.querySelector('.actions');
+
+        // PREPARAR PARA CAPTURA
+        actions.style.display = 'none';
         cont.classList.add('pdf-mode');
-        firma.style.display = 'none';
+        firma.style.display = 'none'; // OCULTAR FIRMA COMPLETAMENTE PARA EL PDF
 
         const allInputs = cont.querySelectorAll('input, select, textarea');
         allInputs.forEach(el => {
@@ -356,12 +367,14 @@
         document.getElementById('modal-preview').style.display = 'flex';
         canvasGlobal = await html2canvas(cont, { scale: 2, useCORS: true });
         
+        // RESTAURAR ESTADO PARA LA WEB
         allInputs.forEach(el => el.style.opacity = "1");
-        firma.style.display = 'block';
+        firma.style.display = 'block'; 
+        cont.classList.remove('pdf-mode');
+        actions.style.display = 'grid';
+
         document.getElementById('preview-canvas-container').innerHTML = "";
         document.getElementById('preview-canvas-container').appendChild(canvasGlobal);
-        cont.classList.remove('pdf-mode');
-        document.querySelector('.actions').style.display = 'grid';
     }
 
     function cerrarModal() { document.getElementById('modal-preview').style.display = 'none'; }
