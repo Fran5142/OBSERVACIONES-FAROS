@@ -518,14 +518,12 @@
             <input type="number" placeholder="m">
         </div>
 
-
-
-        
         <div id="bloque_suelo_seccion" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="field">
                 <label>Estado del Suelo (E)</label>
                 <select id="e_suelo">
                     <option value="">Seleccione...</option>
+                    <option value="0">0 - Superficie seca</option>
                     <option value="1">1 - Superficie del suelo húmeda</option>
                     <option value="2">2 - Superficie del suelo mojada (charcos pequeños)</option>
                     <option value="3">3 - Superficie inundada (charcos grandes)</option>
@@ -541,18 +539,80 @@
     </div>
 
     <div class="section-card">
-        <div class="section-title">9. Estado del Mar</div>
+        <div class="section-title">9. Dirección de Nubosidad</div>
+        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 0.6rem; color: var(--accent); font-weight: bold;">
+            <span>BAJAS</span><span>MEDIAS</span><span>ALTAS</span>
+        </div>
+        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
+            <div class="field">
+                <select id="dir_nubes_bajas" class="clave-input">
+                    <option value="">Seleccione...</option>
+                    <option value="0">0 - Estacionarias o sin nubes</option>
+                    <option value="1">1 - Noreste</option>
+                    <option value="2">2 - Este</option>
+                    <option value="3">3 - Sureste</option>
+                    <option value="4">4 - Sur</option>
+                    <option value="5">5 - Surweste</option>
+                    <option value="6">6 - Weste</option>
+                    <option value="7">7 - Norweste</option>
+                    <option value="8">8 - Norte</option>
+                    <option value="9">9 - Desconocida o invisibles</option>
+                </select>
+            </div>
+            <div class="field">
+                <select id="dir_nubes_medias" class="clave-input">
+                    <option value="">Seleccione...</option>
+                    <option value="0">0 - Estacionarias o sin nubes</option>
+                    <option value="1">1 - Noreste</option>
+                    <option value="2">2 - Este</option>
+                    <option value="3">3 - Sureste</option>
+                    <option value="4">4 - Sur</option>
+                    <option value="5">5 - Surweste</option>
+                    <option value="6">6 - Weste</option>
+                    <option value="7">7 - Norweste</option>
+                    <option value="8">8 - Norte</option>
+                    <option value="9">9 - Desconocida o invisibles</option>
+                </select>
+            </div>
+            <div class="field">
+                <select id="dir_nubes_altas" class="clave-input">
+                    <option value="">Seleccione...</option>
+                    <option value="0">0 - Estacionarias o sin nubes</option>
+                    <option value="1">1 - Noreste</option>
+                    <option value="2">2 - Este</option>
+                    <option value="3">3 - Sureste</option>
+                    <option value="4">4 - Sur</option>
+                    <option value="5">5 - Surweste</option>
+                    <option value="6">6 - Weste</option>
+                    <option value="7">7 - Norweste</option>
+                    <option value="8">8 - Norte</option>
+                    <option value="9">9 - Desconocida o invisibles</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">10. Estado del Mar</div>
         <div class="grid-inputs">
             <div class="field"><label>Dirección Olas</label><input type="number" id="m_dir_swell"></div>
             <div class="field"><label>Periodo (s)</label><input type="number" step="0.1" id="m_alt_swell"></div>
             <div class="field"><label>Altura Mar (m)</label><input type="number" step="0.1" id="m_alt_mar"></div>
             <div class="field"><label> Estado de mar Claro </label><select id="douglas_val">
                     <option value="-">-</option>
-                    <option value="0">0 - Calma</option>
-                    <option value="2">2 - Rizada</option>
-                    <option value="3">3 - Marejadilla</option>
-                    <option value="4">4 - Marejada</option>
-                    <option value="5">5 - Gruesa</option>
+                    <option value="0">Calma</option>
+                    <option value="1">Llana</option>
+                    <option value="2">Rizada</option>
+                    <option value="3">Marejadilla</option>
+                    <option value="4">Marejada</option>
+                    <option value="5">Gruesa</option>
+                    <option value="6">Muy Gruesa</option>
+                    <option value="7">Arbolada</option>
+                    <option value="8">Arbolada alta</option>
+                    <option value="10">Montañoza</option>
+                    <option value="11">Confusa</option>
+                    <option value="12">Huracanado</option>
+
 </select>
 </div>
         </div>
@@ -598,23 +658,20 @@
         setTimeout(() => { box.style.display = 'none'; }, 5000);
     }
 
-    // MODIFICADO: Gestión de visibilidad específica para Agua Caída 24h a las 12 UTC
     function gestionarVisibilidad() {
         const h = document.getElementById('horario_utc').value;
         const bloquePrecip = document.getElementById('bloque_precipitacion');
         const cont24h = document.getElementById('contenedor_24h');
         const gridPrecip = document.getElementById('grid_precip');
 
-        // Mostrar sección de precipitación en las horas principales
         bloquePrecip.style.display = (["00", "06", "12", "18"].includes(h)) ? 'block' : 'none';
         
-        // MODIFICACIÓN SOLICITADA: Solo mostrar 24h a las 12 UTC
         if (h === "12") {
             cont24h.style.display = 'block';
             gridPrecip.style.gridTemplateColumns = '1fr 1fr 0.5fr';
         } else {
             cont24h.style.display = 'none';
-            gridPrecip.style.gridTemplateColumns = '1fr 0.5fr'; // Se ajusta el ancho si no hay 24h
+            gridPrecip.style.gridTemplateColumns = '1fr 0.5fr'; 
         }
 
         document.getElementById('bloque_minima').style.display = (h === "12") ? 'block' : 'none';
