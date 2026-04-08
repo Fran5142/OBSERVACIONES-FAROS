@@ -177,8 +177,8 @@
     <div class="section-card">
         <div class="section-title">3. Presión, Tendencia y Agua Caída</div>
         <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
-            <div class="field"><label> Presión estación (hPa)</label><input type="number" step="0.1" id="p_qfe" value="1013.2"></div>
-            <div class="field"><label> Presión a nivel del mar (hPa)</label><input type="number" step="0.1" id="p_qff"></div>
+            <div class="field"><label> Presión estación (hPa)</label><input type="number" step="0.1" id="p_qfe" oninput="logicaPresion('qfe')"></div>
+            <div class="field"><label> Presión a nivel del mar (hPa)</label><input type="number" step="0.1" id="p_qff" oninput="logicaPresion('qff')"></div>
             <div class="field"><label>Características</label>
                 <select id="p_caract"><option value="">--</option><option value="2">2.- Subiendo</option><option value="4">4.- Estacionaria.</option><option value="7">7.- Bajando</option></select>
             </div>
@@ -724,6 +724,38 @@
                 tMinInput.style.borderColor = "var(--danger)";
                 tMinInput.style.color = "var(--danger)";
                 showAlert("Error de Consistencia", `La T. Mínima (${tMin}°) no puede ser mayor a la T. Seca (${tSeca}°).`);
+            }
+        }
+    }
+
+    function logicaPresion(origen) {
+        const estacion = document.getElementById('estacion_nombre').value;
+        const inputQFE = document.getElementById('p_qfe');
+        const inputQFF = document.getElementById('p_qff');
+        
+        let qfe = parseFloat(inputQFE.value);
+        let qff = parseFloat(inputQFF.value);
+        let factor = 0;
+
+        if (estacion === "GUAFO") {
+            factor = 16.5;
+        } else if (estacion === "RAPER") {
+            factor = 5.7;
+        } else {
+            return;
+        }
+
+        if (origen === 'qfe') {
+            if (!isNaN(qfe)) {
+                inputQFF.value = (qfe + factor).toFixed(1);
+            } else {
+                inputQFF.value = "";
+            }
+        } else if (origen === 'qff') {
+            if (!isNaN(qff)) {
+                inputQFE.value = (qff - factor).toFixed(1);
+            } else {
+                inputQFE.value = "";
             }
         }
     }
