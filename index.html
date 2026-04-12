@@ -861,5 +861,31 @@
         cerrarModal();
     }
 </script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const CACHE_NAME = 'meteo-v1';
+            const urlsToCache = [
+                '${window.location.href}',
+                'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
+            ];
+
+            self.addEventListener('install', (event) => {
+                event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)));
+            });
+
+            self.addEventListener('fetch', (event) => {
+                event.respondWith(caches.match(event.request).then((res) => res || fetch(event.request)));
+            });
+        `;
+
+        const blob = new Blob([swCode], { type: 'text/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).then(() => console.log("Sistema listo para uso Offline."));
+    }
+</script>
+
 </body>
 </html>
