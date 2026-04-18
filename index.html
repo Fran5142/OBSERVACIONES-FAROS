@@ -22,7 +22,7 @@
             --success: #15803d; 
         }
 
-        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { max-width: 950px; width: 100%; position: relative; }
 
         .alert-box {
@@ -56,49 +56,44 @@
         
         .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
         .field { display: flex; flex-direction: column; }
-
         label { font-size: 0.75rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;}
 
         input, textarea, select { 
-            background: #fff; 
-            border: 1px solid var(--border); 
-            color: var(--text-main); 
-            height: 40px; 
-            line-height: 0.8; 
-            padding-top: 3px; 
-            padding-bottom: 1px; 
-            border-radius: 6px; 
-            text-align: center; 
-            text-align-last: center; 
-            font-size: 0.8rem; 
-            font-weight: 600; 
-            width: 100%; 
-            box-sizing: border-box; 
-            display: block;
+            background: #fff; border: 1px solid var(--border); color: var(--text-main); 
+            height: 40px; padding: 0 8px; border-radius: 6px; text-align: center; 
+            font-size: 0.8rem; font-weight: 600; width: 100%; box-sizing: border-box;
         }
         
-        #check_trazas { width: 18px !important; height: 18px !important; cursor: pointer; }
-
         .auto-calc { background: #eff6ff; color: var(--accent-blue); font-weight: bold; border: 1px solid #bfdbfe; }
         .hidden-section { display: none; }
         
+        /* Estilos Historial */
+        .history-section { background: #f8fafc; border: 2px solid var(--accent-blue); border-radius: 8px; padding: 15px; margin-top: 20px; width: 100%; max-width: 950px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; margin-bottom: 10px; padding-bottom: 5px; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 10px; }
+        .history-table th { background: var(--accent); color: white; padding: 8px; }
+        .history-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: center; background: white; }
+
+        .btn-reset { 
+            background: var(--danger); color: white; border: none; padding: 5px 12px; 
+            border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
+        }
+
         #footer-firma {
             margin-top: 40px; padding: 25px; text-align: center;
             background: rgba(15, 23, 42, 0.4); border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05); width: 100%; max-width: 950px;
         }
-        .firma-tag { display: block; color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
         .firma-body { color: #ffffff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 1.1rem; }
 
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; width: 100%; max-width: 950px; }
         button { padding: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; border: none; }
         .btn-save { background: #475569; color: white; }
         .btn-pdf { background: var(--danger); color: white; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 950px; width: 100%; max-height: 95vh; overflow-y: auto; }
-        
-        .pdf-mode { background: white !important; width: 950px !important; padding: 20px !important; }
     </style>
 </head>
 <body>
@@ -119,7 +114,7 @@
             <h1 class="inst-name">Registro Meteorológico de Faros</h1>
             <p class="inst-sub">Centro Zonal de Meteorología Marina de Puerto Montt</p>
             <div class="selectors-group">
-                <select id="estacion_nombre" class="header-select">
+                <select id="estacion_nombre" class="header-select" onchange="cargarHistorialEstacion()">
                     <option value="">SELECCIONAR ESTACIÓN...</option>
                     <option value="RAPER">FARO RAPER</option>
                     <option value="GUAFO">FARO GUAFO</option>
@@ -177,23 +172,21 @@
     <div class="section-card">
         <div class="section-title">3. Presión, Tendencia y Agua Caída</div>
         <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
-            <div class="field"><label> Presión estación (hPa)</label><input type="number" step="0.1" id="p_qfe" oninput="logicaPresion('qfe')"></div>
-            <div class="field"><label> Presión a nivel del mar (hPa)</label><input type="number" step="0.1" id="p_qff" oninput="logicaPresion('qff')"></div>
+            <div class="field"><label>QFE (hPa)</label><input type="number" step="0.1" id="p_qfe" oninput="logicaPresion('qfe')"></div>
+            <div class="field"><label>QFF (hPa)</label><input type="number" step="0.1" id="p_qff" oninput="logicaPresion('qff')"></div>
             <div class="field"><label>Características</label>
-                <select id="p_caract"><option value="">--</option><option value="2">2.- Subiendo</option><option value="4">4.- Estacionaria.</option><option value="7">7.- Bajando</option></select>
+                <select id="p_caract" onchange="calcularTendenciaAutomatica()">
+                    <option value="4">4.- Estacionaria</option>
+                    <option value="2">2.- Subiendo</option>
+                    <option value="7">7.- Bajando</option>
+                </select>
             </div>
-            <div class="field"><label>ppp (tendencia)</label><input type="number" step="0.1"></div>
+            <div class="field"><label>Tendencia (valor)</label><input type="number" step="0.1" id="p_tendencia_valor" class="auto-calc" readonly></div>
         </div>
         <div id="bloque_precipitacion" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="grid-inputs" id="grid_precip">
-                <div class="field">
-                    <label>Agua Caída 6h (mm)</label>
-                    <input type="text" id="precip_valor" placeholder="0.0">
-                </div>
-                <div class="field" id="contenedor_24h">
-                    <label>Agua Caída 24h (mm)</label>
-                    <input type="text" id="precip_24h" placeholder="0.0">
-                </div>
+                <div class="field"><label>Agua Caída 6h (mm)</label><input type="text" id="precip_valor" placeholder="0.0"></div>
+                <div class="field" id="contenedor_24h"><label>Agua Caída 24h (mm)</label><input type="text" id="precip_24h" placeholder="0.0"></div>
                 <div class="field" style="flex-direction:row; align-items:center; gap:8px; margin-top:20px;">
                     <input type="checkbox" id="check_trazas" onchange="manejarTrazas()"> <label style="margin:0; font-size: 0.75rem;">TRAZAS</label>
                 </div>
@@ -202,426 +195,19 @@
     </div>
 
     <div class="section-card">
-        <div class="section-title">4. Visibilidad</div>
+        <div class="section-title">4. Visibilidad, Nubes y Mar</div>
         <div class="grid-inputs">
-            <div class="field">
-                <select id="sel_vis">
-                    <option value="">Seleccione...</option>
-                    <option value="50">50 m o menos</option>
-		            <option value="200">200 m</option>
-		            <option value="500">500 m</option>
-		            <option value="1">1 km</option>
-		            <option value="2">2 km</option>
-		            <option value="4">4 km</option>
-		            <option value="10">10 km</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">5. Tiempo Presente y Pasado</div>
-        <div class="field" style="margin-bottom: 15px;">
-            <label>Tiempo Presente</label>
-            <select class="clave-input">
-<optgroup label="00–09 | Estado del cielo / sin precipitación">
-<option value="00">00 - Estado del cielo no observado</option>
-<option value="01">01 - Nubes en disminución</option>
-<option value="02">02 - Estado del cielo sin cambios en su conjunto</option>
-<option value="03">03 - Nubosidad en aumento o formación</option>
-<option value="04">04 - Visibilidad reducida por humo o ceniza</option>
-<option value="05">05 - Visibilidad reducida por bruma (>1 km)</option>
-<option value="06">06 - Polvo en suspensión</option>
-<option value="07">07 - Polvo o arena levantado por el viento</option>
-<option value="08">08 - Remolinos de polvo o arena</option>
-<option value="09">09 - Tormenta de polvo o arena a la vista</option>
-</optgroup>
-<optgroup label="10–19 | Fenómenos sin precipitación (hora actual o anterior)">
-<option value="10">10 - Neblina (1 a 10 km)</option>
-<option value="11">11 - Niebla baja en bancos aislados (vis < 1 km)</option>
-<option value="12">12 - Niebla baja continua (vis < 1 km)</option>
-<option value="13">13 - Relámpagos visibles sin truenos</option>
-<option value="14">14 - Virga (precipitación que no llega)</option>
-<option value="15">15 - Precipitación a más de 5 km</option>
-<option value="16">16 - Precipitación cerca pero no en estación</option>
-<option value="17">17 - Tormenta sin precipitación</option>
-<option value="18">18 - Turbonadas</option>
-<option value="19">19 - Tornado o tromba marina</option>
-</optgroup>
-<optgroup label="20–29 | Fenómenos en hora precedente">
-<option value="20">20 - Llovizna no congelándose</option>
-<option value="21">21 - Lluvia no congelándose</option>
-<option value="22">22 - Nieve</option>
-<option value="23">23 - Lluvia y nieve o bolitas de hielo</option>
-<option value="24">24 - Lluvia o llovizna congelante</option>
-<option value="25">25 - Chubascos de lluvia</option>
-<option value="26">26 - Chubascos de nieve o lluvia/nieve</option>
-<option value="27">27 - Chubascos de granizo pequeño o nieve granulada</option>
-<option value="28">28 - Niebla o niebla helada</option>
-<option value="29">29 - Tormenta con o sin precipitación</option>
-</optgroup>
-<optgroup label="30–39 | Polvo, arena y ventisca">
-<option value="30">30 - Tempestad de polvo débil/moderada disminuyendo</option>
-<option value="31">31 - Tempestad de polvo débil/moderada sin cambio</option>
-<option value="32">32 - Tempestad de polvo en aumento</option>
-<option value="33">33 - Tempestad de polvo fuerte disminuyendo</option>
-<option value="34">34 - Tempestad de polvo fuerte sin cambio</option>
-<option value="35">35 - Tempestad de polvo fuerte en aumento</option>
-<option value="36">36 - Ventisca baja débil/moderada</option>
-<option value="37">37 - Ventisca baja fuerte</option>
-<option value="38">38 - Ventisca alta débil/moderada</option>
-<option value="39">39 - Ventisca alta fuerte</option>
-</optgroup>
-<optgroup label="40–49 | Niebla en la estación">
-<option value="40">40 - Niebla a distancia</option>
-<option value="41">41 - Niebla en bancos aislados disminuyendo</option>
-<option value="42">42 - Niebla cielo visible disminuyendo</option>
-<option value="43">43 - Niebla cielo invisible disminuyendo</option>
-<option value="44">44 - Niebla cielo visible sin cambio</option>
-<option value="45">45 - Niebla cielo invisible sin cambio</option>
-<option value="46">46 - Niebla cielo visible en aumento</option>
-<option value="47">47 - Niebla cielo invisible en aumento</option>
-<option value="48">48 - Niebla con escarcha (cielo visible)</option>
-<option value="49">49 - Niebla con escarcha (cielo invisible)</option>
-</optgroup>
-<optgroup label="50–59 | Llovizna">
-<option value="50">50 - Llovizna débil intermitente</option>
-<option value="51">51 - Llovizna débil continua</option>
-<option value="52">52 - Llovizna moderada intermitente</option>
-<option value="53">53 - Llovizna moderada continua</option>
-<option value="54">54 - Llovizna fuerte intermitente</option>
-<option value="55">55 - Llovizna fuerte continua</option>
-<option value="56">56 - Llovizna congelante débil</option>
-<option value="57">57 - Llovizna congelante moderada/fuerte</option>
-<option value="58">58 - Llovizna con lluvia débil</option>
-<option value="59">59 - Llovizna con lluvia moderada/fuerte</option>
-</optgroup>
-<optgroup label="60–69 | Lluvia">
-<option value="60">60 - Lluvia débil intermitente</option>
-<option value="61">61 - Lluvia débil continua</option>
-<option value="62">62 - Lluvia moderada intermitente</option>
-<option value="63">63 - Lluvia moderada continua</option>
-<option value="64">64 - Lluvia fuerte intermitente</option>
-<option value="65">65 - Lluvia fuerte continua</option>
-<option value="66">66 - Lluvia congelante débil</option>
-<option value="67">67 - Lluvia congelante moderada/fuerte</option>
-<option value="68">68 - Lluvia y nieve débil</option>
-<option value="69">69 - Lluvia y nieve moderada/fuerte</option>
-</optgroup>
-<optgroup label="70–79 | Nieve (no chubascos)">
-<option value="70">70 - Nieve débil intermitente</option>
-<option value="71">71 - Nieve débil continua</option>
-<option value="72">72 - Nieve moderada intermitente</option>
-<option value="73">73 - Nieve moderada continua</option>
-<option value="74">74 - Nieve fuerte intermitente</option>
-<option value="75">75 - Nieve fuerte continua</option>
-<option value="76">76 - Agujas de hielo</option>
-<option value="77">77 - Nieve granulada</option>
-<option value="78">78 - Cristales de nieve</option>
-<option value="79">79 - Cellisca / bolitas de hielo</option>
-</optgroup>
-<optgroup label="80–89 | Chubascos">
-<option value="80">80 - Chubascos de lluvia débil</option>
-<option value="81">81 - Chubascos de lluvia moderada/fuerte</option>
-<option value="82">82 - Chubascos violentos</option>
-<option value="83">83 - Chubascos de lluvia y nieve débil</option>
-<option value="84">84 - Chubascos de lluvia y nieve fuerte</option>
-<option value="85">85 - Chubascos de nieve débil</option>
-<option value="86">86 - Chubascos de nieve fuerte</option>
-<option value="87">87 - Chubascos débiles de granizo pequeño</option>
-<option value="88">88 - Chubascos fuertes de granizo pequeño</option>
-<option value="89">89 - Chubascos débiles de granizo</option>
-</optgroup>
-<optgroup label="90–99 | Tormentas eléctricas">
-<option value="90">90 - Chubascos fuertes de granizo</option>
-<option value="91">91 - Lluvia débil con tormenta previa</option>
-<option value="92">92 - Lluvia moderada/fuerte con tormenta previa</option>
-<option value="93">93 - Nieve débil con tormenta previa</option>
-<option value="94">94 - Nieve fuerte con tormenta previa</option>
-<option value="95">95 - Tormenta con lluvia o nieve</option>
-<option value="96">96 - Tormenta con granizo</option>
-<option value="97">97 - Tormenta fuerte sin granizo</option>
-<option value="98">98 - Tormenta con polvo o arena</option>
-<option value="99">99 - Tormenta fuerte con granizo</option>
-</optgroup>
-            </select>
-        </div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr;">
-            <div class="field"><label>Pasado 1</label>
-<select class="clave-input">
-                    <option value="0">0 - Nubes cubriendo la mitad o menos</option>
-                    <option value="1">1 - Nubes > mitad (parte período)</option>
-                    <option value="2">2 - Nubes > mitad (todo período)</option>
-                    <option value="3">3 - Tempestad polvo/arena</option>
-                    <option value="4">4 - Niebla/Bruma espesa</option>
-                    <option value="5">5 - Llovizna</option>
-                    <option value="6">6 - Lluvia</option>
-                    <option value="7">7 - Nieve/Lluvia con nieve</option>
-                    <option value="8">8 - Chubascos</option>
-                    <option value="9">9 - Tormenta eléctrica</option>
-                </select>
-</div>
-            <div class="field"><label>Pasado 2</label>
-<select class="clave-input">
-                    <option value="0">0 - Nubes cubriendo la mitad o menos</option>
-                    <option value="1">1 - Nubes > mitad (parte período)</option>
-                    <option value="2">2 - Nubes > mitad (todo período)</option>
-                    <option value="3">3 - Tempestad polvo/arena</option>
-                    <option value="4">4 - Niebla/Bruma espesa</option>
-                    <option value="5">5 - Llovizna</option>
-                    <option value="6">6 - Lluvia</option>
-                    <option value="7">7 - Nieve/Lluvia con nieve</option>
-                    <option value="8">8 - Chubascos</option>
-                    <option value="9">9 - Tormenta eléctrica</option>
-                </select>
-</div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">7. Tipos de Nubes</div>
-        <div class="grid-inputs" style="margin-bottom: 15px;">
-            <div class="field"><label>Total Nubosidad</label><select class="clave-input"><option value="0">0</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-<option value="7">7</option>
-<option value="8">8</option>
-<option value="9"> 9.- Cielo Oscurecido</option>
-</select>
-</div>
-            <div class="field"><label>Octas</label><select class="clave-input">
-<option value="0">0</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-<option value="7">7</option>
-<option value="8">8</option>
-<option value="9"> 9.- Cielo Oscurecido</option>
-</select>
-</div>
-        </div>
-        <div class="grid-inputs">
-            <div class="field"><label>Nubes Baja</label>
-<select class="clave-input">
-<option value="0">0 - Sin nubes bajas</option>
-<option value="1">1 - Cúmulos humilis o fractus (buen tiempo)</option>
-<option value="2">2 - Cúmulos congestus o mediocres (desarrollo vertical)</option>
-<option value="3">3 - Cumulonimbus calvus</option>
-<option value="4">4 - Stratocumulus cumulogenitus (con Cu)</option>
-<option value="5">5 - Stratocumulus no formados por Cu</option>
-<option value="6">6 - Stratus o fractostratus (buen tiempo)</option>
-<option value="7">7 - Fractostratus o fractocumulus de mal tiempo</option>
-<option value="8">8 - Cúmulos y stratocumulus en distintos niveles</option>
-<option value="9">9 - Cumulonimbus capillatus (yunque)</option>
-<option value="/">/ - Nubes bajas invisibles (niebla/polvo/etc.)</option>
-</select>
-</div>
-            <div class="field"><label>Nubes Media</label>
-<select class="clave-input">
-<option value="0">0 - Sin nubes medias</option>
-<option value="1">1 - Altostratus translúcidos (sol/luna difusos)</option>
-<option value="2">2 - Altostratus opacus o nimbostratus</option>
-<option value="3">3 - Altocúmulos translúcidos a un mismo nivel</option>
-<option value="4">4 - Altocúmulos lenticulares (forma de almendra/pez)</option>
-<option value="5">5 - Altocúmulos en bandas o capas (espesándose)</option>
-<option value="6">6 - Altocúmulos cumulogenitus (desde Cu o Cb)</option>
-<option value="7">7 - Altocúmulos en varias capas o con As/Ns</option>
-<option value="8">8 - Altocúmulos flocus o castellatus</option>
-<option value="9">9 - Altocúmulos en cielo caótico (varios niveles)</option>
-<option value="/">/ - Nubes medias invisibles (niebla/polvo/etc.)</option>
-</select>
-</div>
-            <div class="field"><label>Nubes Alta</label>
-<select class="clave-input">
-<option value="0">0 - Sin nubes altas</option>
-<option value="1">1 - Cirrus spissatus (no invaden el cielo)</option>
-<option value="2">2 - Cirrus spissatus en bancos o franjas</option>
-<option value="3">3 - Cirrus spissatus cumulonimbogenitus</option>
-<option value="4">4 - Cirrus uncinus o filosus (extendiéndose)</option>
-<option value="5">5 - Ci y Cs invadiendo (< 45° del cielo)</option>
-<option value="6">6 - Ci y Cs invadiendo (> 45° del cielo)</option>
-<option value="7">7 - Cirrostratus cubriendo todo el cielo</option>
-<option value="8">8 - Cirrostratus parcial sin aumento</option>
-<option value="9">9 - Cirrocúmulos predominantes</option>
-<option value="/">/ - Nubes altas invisibles</option>
-</select>
-</div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">8. Capas de Nubes</div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 0.6rem; color: var(--accent); font-weight: bold;">
-            <span>CANTIDAD</span><span>GÉNERO</span><span>ALTURA</span>
-        </div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8 BAJAS">
-            <select class="clave-input">
-<option value="-">-</option>
-<option value="0">0 - Cirrus (Ci)</option>
-<option value="1">1 - Cirrocúmulus (Cc)</option>
-<option value="2">2 - Cirrostratus (Cs)</option>
-<option value="3">3 - Altocúmulus (Ac)</option>
-<option value="4">4 - Altostratus (As)</option>
-<option value="5">5 - Nimbostratus (Ns)</option>
-<option value="6">6 - Stratocúmulus (Sc)</option>
-<option value="7">7 - Stratus (St)</option>
-<option value="8">8 - Cúmulus (Cu)</option>
-<option value="9">9 - Cúmulonimbus (Cb)</option>
-<option value="/">/ - No se observan nubes</option>
-</select>
-            <input type="number" placeholder="m">
-        </div>
-
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8 MEDIAS">
-            <select class="clave-input">
-<option value="-">-</option>
-<option value="0">0 - Cirrus (Ci)</option>
-<option value="1">1 - Cirrocúmulus (Cc)</option>
-<option value="2">2 - Cirrostratus (Cs)</option>
-<option value="3">3 - Altocúmulus (Ac)</option>
-<option value="4">4 - Altostratus (As)</option>
-<option value="5">5 - Nimbostratus (Ns)</option>
-<option value="6">6 - Stratocúmulus (Sc)</option>
-<option value="7">7 - Stratus (St)</option>
-<option value="8">8 - Cúmulus (Cu)</option>
-<option value="9">9 - Cúmulonimbus (Cb)</option>
-<option value="/">/ - No se observan nubes</option>
-</select>
-            <input type="number" placeholder="m">
-        </div>
-
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <input type="text" class="clave-input" placeholder="0-8 ALTAS">
-            <select class="clave-input">
-<option value="-">-</option>
-<option value="0">0 - Cirrus (Ci)</option>
-<option value="1">1 - Cirrocúmulus (Cc)</option>
-<option value="2">2 - Cirrostratus (Cs)</option>
-<option value="3">3 - Altocúmulus (Ac)</option>
-<option value="4">4 - Altostratus (As)</option>
-<option value="5">5 - Nimbostratus (Ns)</option>
-<option value="6">6 - Stratocúmulus (Sc)</option>
-<option value="7">7 - Stratus (St)</option>
-<option value="8">8 - Cúmulus (Cu)</option>
-<option value="9">9 - Cúmulonimbus (Cb)</option>
-<option value="/">/ - No se observan nubes</option>
-</select>
-            <input type="number" placeholder="m">
-        </div>
-
-        <div id="bloque_suelo_seccion" class="hidden-section" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
-            <div class="field">
-                <label>Estado del Suelo (E)</label>
-                <select id="e_suelo">
-                    <option value="">Seleccione...</option>
-                    <option value="0">0 - Superficie seca</option>
-                    <option value="1">1 - Superficie del suelo húmeda</option>
-                    <option value="2">2 - Superficie del suelo mojada (charcos pequeños)</option>
-                    <option value="3">3 - Superficie inundada (charcos grandes)</option>
-                    <option value="4">4 - Superficie del suelo helada</option>
-                    <option value="5">5 - Glaseado de hielo o costra de hielo en el suelo</option>
-                    <option value="6">6 - Polvo o arena suelta cubriendo parcialmente el suelo</option>
-                    <option value="7">7 - Capa delgada de polvo o arena suelta cubriendo el suelo</option>
-                    <option value="8">8 - Capa moderada o gruesa de polvo o arena cubriendo el suelo</option>
-                    <option value="9">9 - Suelo extremadamente seco con grietas</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">9. Dirección de Nubosidad</div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 0.6rem; color: var(--accent); font-weight: bold;">
-            <span>BAJAS</span><span>MEDIAS</span><span>ALTAS</span>
-        </div>
-        <div class="grid-inputs" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
-            <div class="field">
-                <select id="dir_nubes_bajas" class="clave-input">
-                    <option value="">Seleccione...</option>
-                    <option value="0">0 - Estacionarias o sin nubes</option>
-                    <option value="1">1 - Noreste</option>
-                    <option value="2">2 - Este</option>
-                    <option value="3">3 - Sureste</option>
-                    <option value="4">4 - Sur</option>
-                    <option value="5">5 - Surweste</option>
-                    <option value="6">6 - Weste</option>
-                    <option value="7">7 - Norweste</option>
-                    <option value="8">8 - Norte</option>
-                    <option value="9">9 - Desconocida o invisibles</option>
-                </select>
-            </div>
-            <div class="field">
-                <select id="dir_nubes_medias" class="clave-input">
-                    <option value="">Seleccione...</option>
-                    <option value="0">0 - Estacionarias o sin nubes</option>
-                    <option value="1">1 - Noreste</option>
-                    <option value="2">2 - Este</option>
-                    <option value="3">3 - Sureste</option>
-                    <option value="4">4 - Sur</option>
-                    <option value="5">5 - Surweste</option>
-                    <option value="6">6 - Weste</option>
-                    <option value="7">7 - Norweste</option>
-                    <option value="8">8 - Norte</option>
-                    <option value="9">9 - Desconocida o invisibles</option>
-                </select>
-            </div>
-            <div class="field">
-                <select id="dir_nubes_altas" class="clave-input">
-                    <option value="">Seleccione...</option>
-                    <option value="0">0 - Estacionarias o sin nubes</option>
-                    <option value="1">1 - Noreste</option>
-                    <option value="2">2 - Este</option>
-                    <option value="3">3 - Sureste</option>
-                    <option value="4">4 - Sur</option>
-                    <option value="5">5 - Surweste</option>
-                    <option value="6">6 - Weste</option>
-                    <option value="7">7 - Norweste</option>
-                    <option value="8">8 - Norte</option>
-                    <option value="9">9 - Desconocida o invisibles</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-title">10. Estado del Mar</div>
-        <div class="grid-inputs">
-            <div class="field"><label>Dirección Olas</label><input type="number" id="m_dir_swell"></div>
-            <div class="field"><label>Periodo (s)</label><input type="number" step="0.1" id="m_alt_swell"></div>
+            <div class="field"><label>Visibilidad (km)</label><input type="number" id="vis_val"></div>
+            <div class="field"><label>Nubosidad (oktas)</label><input type="number" min="0" max="8" id="nub_val"></div>
             <div class="field"><label>Altura Mar (m)</label><input type="number" step="0.1" id="m_alt_mar"></div>
-            <div class="field"><label> Estado de mar Claro </label><select id="douglas_val">
-                    <option value="-">-</option>
-                    <option value="0">Calma</option>
-                    <option value="1">Llana</option>
-                    <option value="2">Rizada</option>
-                    <option value="3">Marejadilla</option>
-                    <option value="4">Marejada</option>
-                    <option value="5">Gruesa</option>
-                    <option value="6">Muy Gruesa</option>
-                    <option value="7">Arbolada</option>
-                    <option value="8">Arbolada alta</option>
-                    <option value="10">Montañoza</option>
-                    <option value="11">Confusa</option>
-                    <option value="12">Huracanado</option>
-
-</select>
-</div>
+            <div class="field"><label>Estado Douglas</label>
+                <select id="douglas_val"><option value="0">0.- Calma</option><option value="2">2.- Rizada</option><option value="3">3.- Marejadilla</option><option value="4">4.- Marejada</option></select>
+            </div>
         </div>
-        <div class="field" style="margin-top:15px;"><label>Observaciones</label><textarea id="obs_texto" rows="3"></textarea></div>
     </div>
 
     <div id="footer-firma">
-        <span class="firma-tag">Creado por</span>
-        <span class="firma-body">Cabo 1º (Met.) Francisco Salas Muñoz</span>
+        <span class="firma-body">Cabo 1º (Met.) Francisco Salas Muñoz - CMM Puerto Montt</span>
     </div>
 
     <div class="actions">
@@ -630,12 +216,22 @@
     </div>
 </div>
 
+<div class="history-section">
+    <div class="history-header">
+        <div class="section-title" style="color:var(--accent-blue); margin:0; border:none;">Historial Local de Observaciones</div>
+        <button class="btn-reset" onclick="reiniciarHistorial()">
+            <span>🗑️</span> REINICIAR HISTORIAL
+        </button>
+    </div>
+    <div id="tabla-historial-container"></div>
+</div>
+
 <div class="modal-overlay" id="modal-preview">
     <div class="modal-content">
         <div id="preview-canvas-container" style="text-align:center;"></div>
         <div style="text-align:center; margin-top:20px; display:flex; gap:10px; justify-content:center;">
             <button style="background:#666; color:white; padding:10px 20px; border-radius:6px; cursor:pointer;" onclick="cerrarModal()">Editar</button>
-            <button style="background:var(--success); color:white; padding:10px 20px; border-radius:6px; cursor:pointer;" onclick="descargarPDFDefinitivo()">Descargar Reporte</button>
+            <button style="background:var(--success); color:white; padding:10px 20px; border-radius:6px; cursor:pointer;" onclick="descargarPDFDefinitivo()">Descargar y Guardar</button>
         </div>
     </div>
 </div>
@@ -664,228 +260,142 @@
         const cont24h = document.getElementById('contenedor_24h');
         const gridPrecip = document.getElementById('grid_precip');
 
-        bloquePrecip.style.display = (["00", "06", "12", "18"].includes(h)) ? 'block' : 'none';
-        
-        if (h === "12") {
-            cont24h.style.display = 'block';
-            gridPrecip.style.gridTemplateColumns = '1fr 1fr 0.5fr';
+        if (["00", "06", "12", "18"].includes(h)) {
+            bloquePrecip.style.display = 'block';
+            gridPrecip.style.gridTemplateColumns = (h === "12") ? '1fr 1fr 0.5fr' : '1fr 0.5fr';
+            cont24h.style.display = (h === "12") ? 'block' : 'none';
         } else {
-            cont24h.style.display = 'none';
-            gridPrecip.style.gridTemplateColumns = '1fr 0.5fr'; 
+            bloquePrecip.style.display = 'none';
         }
-
         document.getElementById('bloque_minima').style.display = (h === "12") ? 'block' : 'none';
         document.getElementById('bloque_maxima').style.display = (h === "00") ? 'block' : 'none';
-        document.getElementById('bloque_suelo_seccion').style.display = (h === "12") ? 'block' : 'none';
-        
         validarExtremosAutomatico();
     }
 
     function manejarTrazas() {
         const check = document.getElementById('check_trazas');
         const input6h = document.getElementById('precip_valor');
-        if (check.checked) { 
-            input6h.value = "TRAZAS"; 
-            input6h.disabled = true; 
-            input6h.style.color = "var(--danger)"; 
-        } 
-        else { 
-            input6h.value = ""; 
-            input6h.disabled = false; 
-            input6h.style.color = "var(--text-main)"; 
-        }
-    }
-
-    function validarExtremosAutomatico() {
-        const tSeca = parseFloat(document.getElementById('t_seco').value);
-        const tMaxInput = document.getElementById('val_maxima');
-        const tMinInput = document.getElementById('val_minima');
-        const hUTC = document.getElementById('horario_utc').value;
-
-        tMaxInput.style.borderColor = "var(--border)";
-        tMaxInput.style.color = "var(--text-main)";
-        tMinInput.style.borderColor = "var(--border)";
-        tMinInput.style.color = "var(--text-main)";
-
-        if (isNaN(tSeca)) return;
-
-        if (hUTC === "00" && tMaxInput.value !== "") {
-            const tMax = parseFloat(tMaxInput.value);
-            if (tMax < tSeca) {
-                tMaxInput.style.borderColor = "var(--danger)";
-                tMaxInput.style.color = "var(--danger)";
-                showAlert("Error de Consistencia", `La T. Máxima (${tMax}°) no puede ser menor a la T. Seca (${tSeca}°).`);
-            }
-        }
-
-        if (hUTC === "12" && tMinInput.value !== "") {
-            const tMin = parseFloat(tMinInput.value);
-            if (tMin > tSeca) {
-                tMinInput.style.borderColor = "var(--danger)";
-                tMinInput.style.color = "var(--danger)";
-                showAlert("Error de Consistencia", `La T. Mínima (${tMin}°) no puede ser mayor a la T. Seca (${tSeca}°).`);
-            }
-        }
+        input6h.value = check.checked ? "TRAZAS" : "";
+        input6h.disabled = check.checked;
+        input6h.style.color = check.checked ? "var(--danger)" : "var(--text-main)";
     }
 
     function logicaPresion(origen) {
         const estacion = document.getElementById('estacion_nombre').value;
         const inputQFE = document.getElementById('p_qfe');
         const inputQFF = document.getElementById('p_qff');
+        let factor = (estacion === "GUAFO") ? 16.5 : 
+                     (estacion === "RAPER") ? 5.7 : 
+                     (estacion === "CORONA") ? 7.1 : 0;
         
-        let qfe = parseFloat(inputQFE.value);
-        let qff = parseFloat(inputQFF.value);
-        let factor = 0;
 
-        if (estacion === "GUAFO") {
-            factor = 16.5;
-        } else if (estacion === "RAPER") {
-            factor = 5.7;
-        } else {
-            return;
-        }
+if (origen === 'qfe' && inputQFE.value) inputQFF.value = (parseFloat(inputQFE.value) + factor).toFixed(1);
+        else if (origen === 'qff' && inputQFF.value) inputQFE.value = (parseFloat(inputQFF.value) - factor).toFixed(1);
+        calcularTendenciaAutomatica();
+    }
 
-        if (origen === 'qfe') {
-            if (!isNaN(qfe)) {
-                inputQFF.value = (qfe + factor).toFixed(1);
-            } else {
-                inputQFF.value = "";
-            }
-        } else if (origen === 'qff') {
-            if (!isNaN(qff)) {
-                inputQFE.value = (qff - factor).toFixed(1);
-            } else {
-                inputQFE.value = "";
-            }
+    function calcularTendenciaAutomatica() {
+        const estacion = document.getElementById('estacion_nombre').value;
+        const qffActual = parseFloat(document.getElementById('p_qff').value);
+        const caract = document.getElementById('p_caract');
+        const tendVal = document.getElementById('p_tendencia_valor');
+        if (!estacion || isNaN(qffActual)) return;
+        const historial = JSON.parse(localStorage.getItem(`historial_${estacion}`)) || [];
+        if (historial.length > 0) {
+            const ultimaObs = historial[0];
+            const diff = parseFloat((qffActual - ultimaObs.qff).toFixed(1));
+            tendVal.value = Math.abs(diff).toFixed(1);
+            if (diff >= 0.3) caract.value = "2";
+            else if (diff <= -0.3) caract.value = "7";
+            else caract.value = "4";
         }
+    }
+
+    function cargarHistorialEstacion() {
+        const estacion = document.getElementById('estacion_nombre').value;
+        const container = document.getElementById('tabla-historial-container');
+        if (!estacion) { container.innerHTML = `<p style="font-size:0.8rem; color:gray;">Seleccione una estación...</p>`; return; }
+        const historial = JSON.parse(localStorage.getItem(`historial_${estacion}`)) || [];
+        if (historial.length === 0) { container.innerHTML = `<p style="font-size:0.8rem; color:gray;">Sin registros para ${estacion}.</p>`; return; }
+        let html = `<table class="history-table"><thead><tr><th>Fecha</th><th>UTC</th><th>QFE</th><th>QFF</th><th>Tendencia</th></tr></thead><tbody>`;
+        historial.forEach(reg => {
+            const tendFull = reg.tendencia_caract ? `${reg.tendencia_caract} (${reg.tendencia_valor})` : "-";
+            html += `<tr><td>${reg.fecha}</td><td>${reg.horaUTC}</td><td>${reg.qfe}</td><td>${reg.qff}</td><td style="font-weight:bold; color:var(--accent-blue)">${tendFull}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+        calcularTendenciaAutomatica();
+    }
+
+    function reiniciarHistorial() {
+        const estacion = document.getElementById('estacion_nombre').value;
+        if (!estacion) { alert("Seleccione estación."); return; }
+        if (confirm(`¿Borrar historial de ${estacion}?`)) { localStorage.removeItem(`historial_${estacion}`); cargarHistorialEstacion(); document.getElementById('p_tendencia_valor').value = ""; }
     }
 
     function logicaCalculo(origen) {
-        const tsInput = document.getElementById('t_seco');
-        const twInput = document.getElementById('t_hum');
-        const tdInput = document.getElementById('t_rocio');
-        const hrInput = document.getElementById('hr_res');
-        const T = parseFloat(tsInput.value);
-        let Tw = parseFloat(twInput.value);
-        let Td = parseFloat(tdInput.value);
-        const P = parseFloat(document.getElementById('p_qfe').value) || 1013.2;
+        const tsInput = document.getElementById('t_seco'), twInput = document.getElementById('t_hum'), tdInput = document.getElementById('t_rocio'), hrInput = document.getElementById('hr_res');
+        const T = parseFloat(tsInput.value), P = parseFloat(document.getElementById('p_qfe').value) || 1013.2;
         const calc_e_sat = (temp) => 6.112 * Math.exp((17.67 * temp) / (temp + 243.5));
-
-        if (origen !== 'rocio' && !isNaN(T) && !isNaN(Tw)) {
-            const ew = calc_e_sat(Tw);
-            const e = ew - (0.000662 * P * (T - Tw)); 
-            const es = calc_e_sat(T);
-            let hr = Math.min(Math.max((e / es) * 100, 0), 100);
-            if(e > 0) {
-                const gamma = Math.log(e / 6.112);
-                tdInput.value = ((243.5 * gamma) / (17.67 - gamma)).toFixed(1);
-                hrInput.value = Math.round(hr) + " %";
-            }
-        } else if (origen === 'rocio' && !isNaN(T) && !isNaN(Td)) {
-            const es = calc_e_sat(T);
-            const e_actual = calc_e_sat(Td);
-            hrInput.value = Math.round((e_actual / es) * 100) + " %";
-            let th_iter = T; let step = 10.0;
-            for(let i=0; i<15; i++) {
-                let e_calc = calc_e_sat(th_iter) - (0.000662 * P * (T - th_iter));
-                if(e_calc > e_actual) th_iter -= step; else th_iter += step;
-                step /= 2;
-            }
-            twInput.value = th_iter.toFixed(1);
+        if (origen !== 'rocio' && !isNaN(T) && !isNaN(parseFloat(twInput.value))) {
+            const Tw = parseFloat(twInput.value), e = calc_e_sat(Tw) - (0.000662 * P * (T - Tw)), es = calc_e_sat(T);
+            if(e > 0) { const gamma = Math.log(e / 6.112); tdInput.value = ((243.5 * gamma) / (17.67 - gamma)).toFixed(1); hrInput.value = Math.round(Math.min((e / es) * 100, 100)) + " %"; }
         }
     }
 
+    function validarExtremosAutomatico() {
+        const tSeca = parseFloat(document.getElementById('t_seco').value), tMax = document.getElementById('val_maxima'), tMin = document.getElementById('val_minima'), hUTC = document.getElementById('horario_utc').value;
+        if (isNaN(tSeca)) return;
+        if (hUTC === "00" && tMax.value && parseFloat(tMax.value) < tSeca) showAlert("Error", "T. Máxima menor a T. Seca");
+        if (hUTC === "12" && tMin.value && parseFloat(tMin.value) > tSeca) showAlert("Error", "T. Mínima mayor a T. Seca");
+    }
+
     async function mostrarVistaPrevia() {
-        const tSeca = parseFloat(document.getElementById('t_seco').value);
-        const tMaxVal = parseFloat(document.getElementById('val_maxima').value);
-        const tMinVal = parseFloat(document.getElementById('val_minima').value);
-        const hUTC = document.getElementById('horario_utc').value;
-
-        if (!isNaN(tSeca)) {
-            if (hUTC === "00" && !isNaN(tMaxVal) && tMaxVal < tSeca) {
-                showAlert("Validación Fallida", "Corrija los errores de temperatura máxima antes de continuar.");
-                return;
-            }
-            if (hUTC === "12" && !isNaN(tMinVal) && tMinVal > tSeca) {
-                showAlert("Validación Fallida", "Corrija los errores de temperatura mínima antes de continuar.");
-                return;
-            }
-        }
-
         const cont = document.getElementById('form-content');
-        const firma = document.getElementById('footer-firma');
-        const actions = document.querySelector('.actions');
-
-        actions.style.display = 'none';
-        cont.classList.add('pdf-mode');
-        firma.style.display = 'none';
-
-        const allInputs = cont.querySelectorAll('input, select, textarea');
-        allInputs.forEach(el => {
-            if (el.tagName === 'SELECT' && (el.value === "" || el.options[el.selectedIndex].text.includes("--") || el.options[el.selectedIndex].text.includes("Seleccione"))) {
-                el.style.opacity = "0"; 
-            }
-            if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.value === "") {
-                el.style.opacity = "0";
-            }
-        });
-
         document.getElementById('modal-preview').style.display = 'flex';
-        canvasGlobal = await html2canvas(cont, { scale: 2, useCORS: true });
-        
-        allInputs.forEach(el => el.style.opacity = "1");
-        firma.style.display = 'block'; 
-        cont.classList.remove('pdf-mode');
-        actions.style.display = 'grid';
-
-        document.getElementById('preview-canvas-container').innerHTML = "";
-        document.getElementById('preview-canvas-container').appendChild(canvasGlobal);
+        canvasGlobal = await html2canvas(cont, { scale: 2 });
+        const pcc = document.getElementById('preview-canvas-container');
+        pcc.innerHTML = ""; pcc.appendChild(canvasGlobal);
     }
 
     function cerrarModal() { document.getElementById('modal-preview').style.display = 'none'; }
 
     function descargarPDFDefinitivo() {
+        const est = document.getElementById('estacion_nombre').value;
+        const qff = parseFloat(document.getElementById('p_qff').value);
+        if (est && !isNaN(qff)) {
+            let hist = JSON.parse(localStorage.getItem(`historial_${est}`)) || [];
+            hist.unshift({
+                fecha: new Date().toLocaleDateString('es-CL'),
+                horaUTC: document.getElementById('horario_utc').value + " UTC",
+                qfe: document.getElementById('p_qfe').value,
+                qff: qff,
+                tendencia_caract: document.getElementById('p_caract').value,
+                tendencia_valor: document.getElementById('p_tendencia_valor').value
+            });
+            if (hist.length > 10) hist.pop();
+            localStorage.setItem(`historial_${est}`, JSON.stringify(hist));
+        }
         const { jsPDF } = window.jspdf;
-        const imgWidth = canvasGlobal.width;
-        const imgHeight = canvasGlobal.height;
-        const pageWidth = 210; 
-        const pdfHeight = (imgHeight * pageWidth) / imgWidth;
-        const pdf = new jsPDF('p', 'mm', [pageWidth, pdfHeight]);
-        pdf.addImage(canvasGlobal.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, pdfHeight);
-        
-        const est = document.getElementById('estacion_nombre').value || 'REPORTE';
-        const horaUTC = document.getElementById('horario_utc').value || 'MET';
-        const fechaHoy = new Date().toLocaleDateString('es-CL').replace(/\//g, '-');
-        
-        pdf.save(`FARO_${est}_${horaUTC}UTC_${fechaHoy}.pdf`);
-        cerrarModal();
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        pdf.addImage(canvasGlobal.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, (canvasGlobal.height * 210) / canvasGlobal.width);
+        pdf.save(`FARO_${est || 'MET'}_${new Date().toLocaleDateString('es-CL')}.pdf`);
+        cerrarModal(); cargarHistorialEstacion();
     }
 </script>
 
 <script>
     if ('serviceWorker' in navigator) {
         const swCode = `
-            const CACHE_NAME = 'meteo-v1';
-            const urlsToCache = [
-                '${window.location.href}',
-                'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
-            ];
-
-            self.addEventListener('install', (event) => {
-                event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)));
+            const CACHE_NAME = 'meteo-v3';
+            self.addEventListener('install', (e) => {
+                e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(['${window.location.href}', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'])));
             });
-
-            self.addEventListener('fetch', (event) => {
-                event.respondWith(caches.match(event.request).then((res) => res || fetch(event.request)));
-            });
+            self.addEventListener('fetch', (e) => { e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request))); });
         `;
-
         const blob = new Blob([swCode], { type: 'text/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).then(() => console.log("Sistema listo para uso Offline."));
+        navigator.serviceWorker.register(URL.createObjectURL(blob));
     }
 </script>
-
 </body>
 </html>
